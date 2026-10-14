@@ -1,24 +1,24 @@
-# 说明
+# 一、说明
 
 数据结构实现：  
 线性表：顺序实现、单/双/环链式实现、静态实现、字符串、KMP 模式匹配算法、栈、队列。
 
-# 测试
+# 二、测试
 
 ```shell
 make test
 ```
 
-# 构建
+# 三、构建
 
 ```shell
 make build
 make install PREFIX=/usr/local/
 ```
 
-# 接口
+# 四、接口
 
-## 线性表
+## 4.1 线性表
 
 ```c
 #include <list.h>
