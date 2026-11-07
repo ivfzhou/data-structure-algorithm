@@ -18,7 +18,7 @@
 #include "static_linked_list.h"
 
 List* List_Alloc(size_t elemSize, ListImplType type) {
-    List* list = malloc(sizeof(list));
+    List* list = malloc(sizeof(List));
     switch (type) {
     case ARRAY: list->impl = ArrayList_Alloc(elemSize); break;
     case LINKED: list->impl = LinkedList_Alloc(elemSize); break;

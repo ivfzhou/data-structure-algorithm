@@ -25,7 +25,7 @@ LinkedQueue* LinkedQueue_Alloc(size_t elemSize) {
 
 void LinkedQueue_Free(LinkedQueue* q) {
     LinkQueueNode* node = q->front;
-    for (int i = 0; i < q->length; i++) {
+    for (size_t i = 0; i < q->length; i++) {
         free(node->elem);
         node = node->next;
     }

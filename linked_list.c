@@ -168,7 +168,7 @@ int LinkedList_FPrint(const LinkedList* list, FILE* f, ListElemToString str, siz
     fprintf(f, "[");
     char s[sizeOfElem + 1];
     SingleLinkNode* node = list->head;
-    for (int i = 0; i < list->length - 1 && list->length; i++) {
+    for (size_t i = 0; i < list->length - 1 && list->length; i++) {
         size_t len = str(node->elem, s);
         s[len] = '\0';
         fprintf(f, "%s, ", s);

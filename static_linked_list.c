@@ -142,7 +142,7 @@ int StaticLinkedList_Del(StaticLinkedList* list, size_t index) {
     if (list->length - index > 1)
         memmove(list->indexes + index, list->indexes + index + 1, sizeof(unsigned) * (list->length - index - 1));
     list->length--;
-    for (int i = 0; i < list->length; i++)
+    for (size_t i = 0; i < list->length; i++)
         if (list->indexes[i] > elemIndex) list->indexes[i]--;
     return 0;
 }

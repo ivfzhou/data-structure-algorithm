@@ -80,7 +80,7 @@ long double expressionCalculate(const char* expr) {
     Stack* operand = Stack_Alloc(sizeof(long double), 1024);
 
     size_t len = strlen(expr);
-    for (int i = 0; i < len; i++) {
+    for (size_t i = 0; i < len; i++) {
         char c = expr[i];
         if (!isOperator(c)) {
             char tmp[] = {c, '\0'};

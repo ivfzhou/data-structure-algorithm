@@ -29,7 +29,7 @@ static void add(Polynomial* poly, Item* itm) {
     size_t len = List_Len(poly);
 
     Item tmp;
-    for (int i = 0; i < len; i++) {
+    for (size_t i = 0; i < len; i++) {
         List_Get(poly, i, &tmp);
         if (tmp.exponent == itm->exponent) {
             long double coefficient = tmp.coefficient + itm->coefficient;
@@ -76,14 +76,14 @@ Polynomial* Polynomial_Add(const Polynomial* x, const Polynomial* y) {
     Polynomial* newPolynomial = List_Alloc(sizeof(Item), ARRAY);
 
     size_t len = List_Len(x);
-    for (int i = 0; i < len; i++) {
+    for (size_t i = 0; i < len; i++) {
         Item item;
         List_Get(x, i, &item);
         add(newPolynomial, &item);
     }
 
     len = List_Len(y);
-    for (int i = 0; i < len; i++) {
+    for (size_t i = 0; i < len; i++) {
         Item item;
         List_Get(y, i, &item);
         add(newPolynomial, &item);
@@ -98,13 +98,13 @@ Polynomial* Polynomial_Subtract(const Polynomial* x, const Polynomial* y) {
 
     size_t len = List_Len(x);
     Item item;
-    for (int i = 0; i < len; i++) {
+    for (size_t i = 0; i < len; i++) {
         List_Get(x, i, &item);
         add(newPolynomial, &item);
     }
 
     len = List_Len(y);
-    for (int i = 0; i < len; i++) {
+    for (size_t i = 0; i < len; i++) {
         List_Get(y, i, &item);
         item.coefficient = -item.coefficient;
         add(newPolynomial, &item);
@@ -121,9 +121,9 @@ Polynomial* Polynomial_Multiply(const Polynomial* x, const Polynomial* y) {
     size_t lenY = List_Len(y);
     Item itemX;
     Item itemY;
-    for (int i = 0; i < lenX; i++) {
+    for (size_t i = 0; i < lenX; i++) {
         List_Get(x, i, &itemX);
-        for (int j = 0; j < lenY; j++) {
+        for (size_t j = 0; j < lenY; j++) {
             List_Get(y, j, &itemY);
             Item newItem = {
                 .coefficient = itemX.coefficient * itemY.coefficient,
@@ -140,7 +140,7 @@ Polynomial* Polynomial_Multiply(const Polynomial* x, const Polynomial* y) {
 void Polynomial_FPrint(const Polynomial* poly, FILE* f) {
     size_t len = List_Len(poly);
 
-    for (int i = 0; i < len; i++) {
+    for (size_t i = 0; i < len; i++) {
         Item item;
         List_Get(poly, i, &item);
 

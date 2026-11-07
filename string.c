@@ -17,7 +17,8 @@
 #include "string.h"
 
 static void genNext(const char* p, size_t len, int next[]) {
-    int i = 0, j = -1;
+    size_t i = 0;
+    int j = -1;
     next[0] = -1;
     while (i < len - 1) {
         if (j == -1 || p[i] == p[j]) {
@@ -63,9 +64,9 @@ long long String_Index(const String* s, const String* sub) {
     int next[sub->length];
     genNext(sub->chars, sub->length, next);
     unsigned long long i = 0;
-    long long j = 0;
-    while (i < s->length && j < (long long)sub->length) {
-        if (j < 0 || s->chars[i] == sub->chars[j]) {
+    unsigned long long j = 0;
+    while (i < s->length && j < sub->length) {
+        if (s->chars[i] == sub->chars[j]) {
             i++, j++;
         } else
             j = next[j];
@@ -103,13 +104,13 @@ void String_Free(String* s) {
 }
 
 int String_Compare(const String* s1, const String* s2) {
-    for (int i = 0; i < s1->length && i < s2->length; i++) {
+    for (unsigned long long i = 0; i < s1->length && i < s2->length; i++) {
         if (s1->chars[i] != s2->chars[i]) return s1->chars[i] - s2->chars[i];
     }
     return s1->length > s2->length ? 1 : s1->length == s2->length ? 0 : -1;
 }
 
 int String_FPrint(const String* s, FILE* f) {
-    for (int i = 0; i < s->length; i++) fputc(s->chars[i], f);
+    for (unsigned long long i = 0; i < s->length; i++) fputc(s->chars[i], f);
     return 0;
 }

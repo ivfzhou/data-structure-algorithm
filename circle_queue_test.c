@@ -18,16 +18,16 @@
 int main(void) {
     CircleQueue* queue = CircleQueueAlloc(sizeof(int), 10);
     int elem;
-    for (int i = 0; i < 10; i++) {
-        elem = i + 1;
+    for (size_t i = 0; i < 10; i++) {
+        elem = (int)(i + 1);
         assert(!CircleQueueInto(queue, &elem));
         assert(CircleQueueLen(queue) == i + 1);
     }
     assert(CircleQueueInto(queue, &elem) == 1);
 
-    for (int i = 0; i < 10; i++) {
+    for (size_t i = 0; i < 10; i++) {
         assert(!CircleQueueExit(queue, &elem));
-        assert(elem == 1 + i);
+        assert(elem == (int)(1 + i));
         assert(CircleQueueLen(queue) == 9 - i);
     }
     assert(CircleQueueExit(queue, &elem) == 1);
