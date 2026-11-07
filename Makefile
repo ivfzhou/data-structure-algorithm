@@ -9,54 +9,91 @@
 # See the Mulan PSL v2 for more details.
 
 CC = gcc
-TARGET = data_structure_algorithm
-PREFIX ?= /usr/local
-CFLAGS_DEBUG = -std=c18 -finput-charset=UTF-8 -fexec-charset=UTF-8 --all-warnings -pedantic -Winline -O0 -Wall -g3
-CFLAGS_RELEASE = -std=c18 -finput-charset=UTF-8 -fexec-charset=UTF-8 -O3 -g0
-SOURCES = $(wildcard *.c)
-HEADERS = $(wildcard *.h)
-OBJECTS = $(SOURCES:.c=.o)
-BUILD_SOURCES = $(filter-out %_test.c, $(SOURCES))
-TEST_SOURCES = $(wildcard *_test.c)
-TEST_TARGETS = $(patsubst %.c,%,$(TEST_SOURCES))
-ifeq ($(OS), Windows_NT)
-	TEST_TARGETS = $(patsubst %.c,%.exe,$(TEST_SOURCES))
-endif
-BUILD_OBJECTS = $(BUILD_SOURCES:.c=.o)
-TEST_OBJECTS = $(TEST_SOURCES:.c=.o)
-LIB = lib_$(TARGET).a
-CLEAN_COMMAND = rm -f $(BUILD_OBJECTS) $(LIB) $(TEST_OBJECTS) $(TEST_TARGETS);
+AR = ar
+SHELL = sh
 
-.PHONY: build test install uninstall all debug clean
+PREFIX ?= /usr/local/
+ALL_SOURCES := $(wildcard *.c)
+ALL_HEADERS := $(wildcard *.h)
+SOURCES := $(filter-out %_test.c,$(ALL_SOURCES))
+TEST_TARGETS := $(sort $(patsubst %.c,%,$(wildcard *_test.c)))
+HEADERS := $(filter-out common.h,$(ALL_HEADERS))
+STATIC_DEBUG_OBJECTS := $(addprefix build/objects/static-debug/,$(patsubst %.c,%.o,$(SOURCES)))
+STATIC_RELEASE_OBJECTS := $(addprefix build/objects/static-release/,$(patsubst %.c,%.o,$(SOURCES)))
+SHARED_DEBUG_OBJECTS := $(addprefix build/objects/shared-debug/,$(patsubst %.c,%.o,$(SOURCES)))
+SHARED_RELEASE_OBJECTS := $(addprefix build/objects/shared-release/,$(patsubst %.c,%.o,$(SOURCES)))
+STATIC_DEBUG_OBJECTS_DIRECTORIES := $(sort $(dir $(STATIC_DEBUG_OBJECTS)))
+STATIC_RELEASE_OBJECTS_DIRECTORIES := $(sort $(dir $(STATIC_RELEASE_OBJECTS)))
+SHARED_DEBUG_OBJECTS_DIRECTORIES := $(sort $(dir $(SHARED_DEBUG_OBJECTS)))
+SHARED_RELEASE_OBJECTS_DIRECTORIES := $(sort $(dir $(SHARED_RELEASE_OBJECTS)))
 
-build:
-	@for i in $(BUILD_SOURCES); do \
-		$(CC) $(CFLAGS_RELEASE) -c -o $${i%.c}.o $$i; \
-	done
-	@ar rcs $(LIB) $(BUILD_OBJECTS)
-test: build
-	@for i in $(TEST_SOURCES); do \
-		$(CC) $(CFLAGS_RELEASE) -o $${i%.c} $$i $(BUILD_OBJECTS); \
-    done
-	@for i in $(TEST_TARGETS); do \
-		echo "start running $$i"; \
-		./$$i; \
-		echo "end running $$i"; \
-	done
+.PHONY: all clean build test install $(TEST_TARGETS)
+
+all: clean build test install
+
+%/:
+	@mkdir -p $@
+
+build/objects/static-debug/%.o: %.c | $(STATIC_DEBUG_OBJECTS_DIRECTORIES)
+	@$(CC) -std=c17 -finput-charset=UTF-8 -fexec-charset=UTF-8 -Wpedantic -Winline -Wall -Wextra -Wno-unused-variable \
+	       -Wno-unused-function -Wno-unused-local-typedefs -Wno-unused-parameter -O0 -g3 -c -o $@ $<
+
+build/objects/static-release/%.o: %.c | $(STATIC_RELEASE_OBJECTS_DIRECTORIES)
+	@$(CC) -std=c17 -finput-charset=UTF-8 -fexec-charset=UTF-8 -Wpedantic -Winline -Wall -Wextra -Wno-unused-variable \
+	       -Wno-unused-function -Wno-unused-local-typedefs -Wno-unused-parameter -O3 -flto -fPIC -c -o $@ $<
+
+build/objects/shared-debug/%.o: %.c | $(SHARED_DEBUG_OBJECTS_DIRECTORIES)
+	@$(CC) -std=c17 -finput-charset=UTF-8 -fexec-charset=UTF-8 -Wpedantic -Winline -Wall -Wextra -Wno-unused-variable \
+	       -Wno-unused-function -Wno-unused-local-typedefs -Wno-unused-parameter -O0 -g3 -c -o $@ $<
+
+build/objects/shared-release/%.o: %.c | $(SHARED_RELEASE_OBJECTS_DIRECTORIES)
+	@$(CC) -std=c17 -finput-charset=UTF-8 -fexec-charset=UTF-8 -Wpedantic -Winline -Wall -Wextra -Wno-unused-variable \
+	       -Wno-unused-function -Wno-unused-local-typedefs -Wno-unused-parameter -O3 -DNDEBUG -flto -fPIC -c -o $@ $<
+
+build/libdata-structure-algorithm-static-debug.a: $(STATIC_DEBUG_OBJECTS)
+	@$(AR) rcs $@ $^
+
+define make_debug_target
+build/debug/$(1): build/objects/static-debug/$(1).o build/libdata-structure-algorithm-static-debug.a | build/debug/
+	@$$(CC) -o $$@ $$^
+
+$(1): build/debug/$(1)
+endef
+
+$(foreach v,$(TEST_TARGETS),$(eval $(call make_debug_target,$(v))))
+
+build/libdata-structure-algorithm.so: $(SHARED_RELEASE_OBJECTS)
+	@$(CC) -shared -flto -Wl,-soname,libdata-structure-algorithm.so -Wl,-rpath,'$$ORIGIN' -o $@ $^
+
+build/libdata-structure-algorithm.a: $(STATIC_RELEASE_OBJECTS)
+	@$(AR) rcs $@ $^
+
+build: build/libdata-structure-algorithm.so build/libdata-structure-algorithm.a
+	@echo 'build done'
+
+build/libdata-structure-algorithm-static-release.a: $(STATIC_RELEASE_OBJECTS)
+	@$(AR) rcs $@ $^
+
+define make_test_target
+build/test/$(1): build/objects/static-release/$(1).o build/libdata-structure-algorithm-static-release.a | build/test/
+	@$$(CC) -o $$@ $$^
+	@echo 'start $(1) test'
+	@build/test/$(1)
+	@echo 'end $(1) test'
+endef
+
+$(foreach v,$(TEST_TARGETS),$(eval $(call make_test_target,$(v))))
+
+test: $(addprefix build/test/,$(TEST_TARGETS))
+	@echo 'test done'
+
+clean:
+	@rm -rf build
+	@echo 'clean done'
+
 install: build
 	@mkdir -p $(PREFIX)/lib/
-	@cp $(LIB) $(PREFIX)/lib/
-	@mkdir -p $(PREFIX)/include/
-	@cp $(HEADERS) $(PREFIX)/include/
-uninstall:
-	@rm -f $(PREFIX)/lib/$(LIB)
-	@for f in $(HEADERS); do rm -f $(PREFIX)/include/$$f; done
-
-all: debug
-debug: $(TARGET)
-%.o: %.c
-	@$(CC) $(CFLAGS_DEBUG) -c -o $@ $<
-$(TARGET): $(OBJECTS)
-	@echo "do nothings"
-clean:
-	@$(CLEAN_COMMAND)
+	@cp -f build/libdata-structure-algorithm.so build/libdata-structure-algorithm.a $(PREFIX)/lib/
+	@mkdir -p  $(PREFIX)/include/
+	@cp -f $(HEADERS) $(PREFIX)/include/
+	@echo 'install done'
