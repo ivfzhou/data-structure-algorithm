@@ -16,13 +16,13 @@
 #include "common.h"
 
 // 扩容阈值。
-const static int EXPAND_THRESHOLD = 256;
+static const int EXPAND_THRESHOLD = 256;
 
 // 扩容系数。
-const static long double EXPAND_FACTOR = 1.25L;
+static const long double EXPAND_FACTOR = 1.25L;
 
 // 缩容系数。
-const static long double REDUCE_FACTOR = 2L;
+static const long double REDUCE_FACTOR = 2L;
 
 // 判断是否需要缩容。
 static _Bool needReduce(const ArrayList* list) {

@@ -20,7 +20,7 @@
 #include "stack.h"
 
 static _Bool isOperator(char c) {
-    const static char operators[] = "+-*/()";
+    static const char operators[] = "+-*/()";
     int i = 0;
     char o;
     while ((o = operators[i++]))
