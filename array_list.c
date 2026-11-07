@@ -13,49 +13,45 @@
 #include <string.h>
 
 #include "array_list.h"
+#include "common.h"
 
 // 扩容阈值。
-const static int expand_threshold = 256;
+const static int EXPAND_THRESHOLD = 256;
 
 // 扩容系数。
-const static long double expand_factor = 1.25L;
+const static long double EXPAND_FACTOR = 1.25L;
 
 // 缩容系数。
-const static long double reduce_factor = 2L;
-
-extern void* pointer_add(void* p1, size_t delta);
+const static long double REDUCE_FACTOR = 2L;
 
 // 判断是否需要缩容。
-static _Bool need_reduce(const array_list* list) {
-    return list->length > expand_threshold && (list->length * reduce_factor <= list->capacity);
+static _Bool needReduce(const ArrayList* list) {
+    return list->length > EXPAND_THRESHOLD && (list->length * REDUCE_FACTOR <= list->capacity);
 }
 
 // 判断是否需要扩容。
-static _Bool need_expand(const array_list* list) {
-    return list->length >= list->capacity;
-}
+static _Bool needExpand(const ArrayList* list) { return list->length >= list->capacity; }
 
 // 扩容并插入元素。
-static int expand_and_insert(array_list* list, const size_t index, const void* elem) {
-    if (list->capacity < expand_threshold)
+static int expandAndInsert(ArrayList* list, const size_t index, const void* elem) {
+    if (list->capacity < EXPAND_THRESHOLD)
         list->capacity += list->capacity + 1;
     else
-        list->capacity = (size_t)(list->capacity * expand_factor);
+        list->capacity = (size_t)(list->capacity * EXPAND_FACTOR);
 
-    void* newElems = malloc(list->elem_size * list->capacity);
+    void* newElems = malloc(list->elemSize * list->capacity);
 
     // 复制前段。
-    if (index && list->elems != NULL)
-        memcpy(newElems, list->elems, list->elem_size * index);
+    if (index && list->elems != NULL) memcpy(newElems, list->elems, list->elemSize * index);
 
     // 复制后段。
     if ((list->length - index) && list->elems != NULL)
-        memcpy(pointer_add(newElems, (index + 1) * list->elem_size),
-               pointer_add(list->elems, index * list->elem_size),
-               list->elem_size * (list->length - index));
+        memcpy(PointerAdd(newElems, (index + 1) * list->elemSize),
+               PointerAdd(list->elems, index * list->elemSize),
+               list->elemSize * (list->length - index));
 
     // 设置新元素。
-    memcpy(pointer_add(newElems, index * list->elem_size), elem, list->elem_size);
+    memcpy(PointerAdd(newElems, index * list->elemSize), elem, list->elemSize);
 
     free(list->elems);
     list->elems = newElems;
@@ -65,21 +61,19 @@ static int expand_and_insert(array_list* list, const size_t index, const void* e
 }
 
 // 缩容并弹出元素。
-static int dealloc_and_pop(array_list* list, const size_t index, void* elem) {
-    if (elem != NULL)
-        memcpy(elem, pointer_add(list->elems, index * list->elem_size), list->elem_size);
+static int deallocAndPop(ArrayList* list, const size_t index, void* elem) {
+    if (elem != NULL) memcpy(elem, PointerAdd(list->elems, index * list->elemSize), list->elemSize);
 
-    void* newElems = malloc(list->elem_size * (size_t)(list->length * expand_factor));
+    void* newElems = malloc(list->elemSize * (size_t)(list->length * EXPAND_FACTOR));
 
     // 复制前段。
-    if (index)
-        memcpy(newElems, list->elems, list->elem_size * index);
+    if (index) memcpy(newElems, list->elems, list->elemSize * index);
 
     // 复制后段。
     if (list->length - index)
-        memcpy(pointer_add(newElems, (index + 1) * list->elem_size),
-               pointer_add(list->elems, index * list->elem_size),
-               list->elem_size * (list->length - index));
+        memcpy(PointerAdd(newElems, (index + 1) * list->elemSize),
+               PointerAdd(list->elems, index * list->elemSize),
+               list->elemSize * (list->length - index));
 
     free(list->elems);
     list->elems = newElems;
@@ -87,74 +81,67 @@ static int dealloc_and_pop(array_list* list, const size_t index, void* elem) {
     return 0;
 }
 
-array_list* array_list_alloc(const size_t elem_size) {
-    array_list* list = malloc(sizeof(array_list));
-    list->elem_size = elem_size;
+ArrayList* ArrayList_Alloc(const size_t elemSize) {
+    ArrayList* list = malloc(sizeof(ArrayList));
+    list->elemSize = elemSize;
     list->length = list->capacity = 0;
     list->elems = NULL;
     return list;
 }
 
-void array_list_free(array_list* list) {
+void ArrayList_Free(ArrayList* list) {
     free(list->elems);
     list->length = list->capacity = 0;
-    list->elem_size = 0;
+    list->elemSize = 0;
     list->elems = NULL;
     free(list);
 }
 
-size_t array_list_len(const array_list* list) {
-    return list->length;
-}
+size_t ArrayList_Len(const ArrayList* list) { return list->length; }
 
-int array_list_get(const array_list* list, const size_t index, void* elem) {
-    if (index >= list->length)
-        return 1;
-    memcpy(elem, pointer_add(list->elems, index * list->elem_size), list->elem_size);
+int ArrayList_Get(const ArrayList* list, const size_t index, void* elem) {
+    if (index >= list->length) return 1;
+    memcpy(elem, PointerAdd(list->elems, index * list->elemSize), list->elemSize);
     return 0;
 }
 
-int array_list_insert(array_list* list, const size_t index, const void* elem) {
-    if (index > list->length)
-        return 1;
+int ArrayList_Insert(ArrayList* list, const size_t index, const void* elem) {
+    if (index > list->length) return 1;
 
     // 扩容。
-    if (need_expand(list))
-        return expand_and_insert(list, index, elem);
+    if (needExpand(list)) return expandAndInsert(list, index, elem);
 
     // 从index往后移动一位。
     if (list->length - index)
-        memmove(pointer_add(list->elems, (index + 1) * list->elem_size),
-                pointer_add(list->elems, index * list->elem_size),
-                list->elem_size * (list->length - index));
+        memmove(PointerAdd(list->elems, (index + 1) * list->elemSize),
+                PointerAdd(list->elems, index * list->elemSize),
+                list->elemSize * (list->length - index));
     // 设置元素。
-    memcpy(pointer_add(list->elems, index * list->elem_size), elem, list->elem_size);
+    memcpy(PointerAdd(list->elems, index * list->elemSize), elem, list->elemSize);
 
     list->length++;
     return 0;
 }
 
-int array_list_del(array_list* list, const size_t index) {
-    if (index >= list->length)
-        return 1;
+int ArrayList_Del(ArrayList* list, const size_t index) {
+    if (index >= list->length) return 1;
 
     // 缩容。
-    if (need_reduce(list))
-        return dealloc_and_pop(list, index, NULL);
+    if (needReduce(list)) return deallocAndPop(list, index, NULL);
 
     // 从index往前移动一位。
     if (list->length - index - 1)
-        memmove(pointer_add(list->elems, index * list->elem_size),
-                pointer_add(list->elems, (index + 1) * list->elem_size),
-                (list->length - index - 1) * list->elem_size);
+        memmove(PointerAdd(list->elems, index * list->elemSize),
+                PointerAdd(list->elems, (index + 1) * list->elemSize),
+                (list->length - index - 1) * list->elemSize);
 
     list->length--;
     return 0;
 }
 
-int array_list_locate(const array_list* list, list_elem_comparer cmp, const void* elem, size_t* index) {
+int ArrayList_Locate(const ArrayList* list, ListElemComparer cmp, const void* elem, size_t* index) {
     for (size_t i = 0; i < list->length; i++) {
-        if (!cmp(pointer_add(list->elems, i * list->elem_size), elem)) {
+        if (!cmp(PointerAdd(list->elems, i * list->elemSize), elem)) {
             *index = i;
             return 0;
         }
@@ -162,86 +149,73 @@ int array_list_locate(const array_list* list, list_elem_comparer cmp, const void
     return 1;
 }
 
-int array_list_travel(const array_list* list, list_elem_visitor visit) {
-    for (size_t i = 0; i < list->length; i++)
-        visit(pointer_add(list->elems, i * list->elem_size));
+int ArrayList_Travel(const ArrayList* list, ListElemVisitor visit) {
+    for (size_t i = 0; i < list->length; i++) visit(PointerAdd(list->elems, i * list->elemSize));
 
     return 0;
 }
 
-int array_list_clear(array_list* list) {
+int ArrayList_Clear(ArrayList* list) {
     free(list->elems);
     list->elems = NULL;
     list->length = list->capacity = 0;
     return 0;
 }
 
-int array_list_rpop(array_list* list, void* elem) {
-    return array_list_getdel(list, list->length - 1, elem);
-}
+int ArrayList_RPop(ArrayList* list, void* elem) { return ArrayList_GetDel(list, list->length - 1, elem); }
 
-int array_list_lpush(array_list* list, const void* elem) {
-    return array_list_insert(list, 0, elem);
-}
+int ArrayList_LPush(ArrayList* list, const void* elem) { return ArrayList_Insert(list, 0, elem); }
 
-int array_list_rpush(array_list* list, const void* elem) {
-    return array_list_insert(list, list->length, elem);
-}
+int ArrayList_RPush(ArrayList* list, const void* elem) { return ArrayList_Insert(list, list->length, elem); }
 
-int array_list_lpop(array_list* list, void* elem) {
-    return array_list_getdel(list, 0, elem);
-}
+int ArrayList_LPop(ArrayList* list, void* elem) { return ArrayList_GetDel(list, 0, elem); }
 
-int array_list_set(array_list* list, const size_t index, const void* elem) {
-    if (index >= list->length)
-        return 1;
-    memcpy(pointer_add(list->elems, index * list->elem_size), elem, list->elem_size);
+int ArrayList_Set(ArrayList* list, const size_t index, const void* elem) {
+    if (index >= list->length) return 1;
+    memcpy(PointerAdd(list->elems, index * list->elemSize), elem, list->elemSize);
     return 0;
 }
 
-int array_list_getdel(array_list* list, const size_t index, void* elem) {
-    if (index >= list->length)
-        return 1;
+int ArrayList_GetDel(ArrayList* list, const size_t index, void* elem) {
+    if (index >= list->length) return 1;
 
     // 缩容。
-    if (need_reduce(list))
-        return dealloc_and_pop(list, index, elem);
+    if (needReduce(list)) return deallocAndPop(list, index, elem);
 
     // 设置元素。
-    memcpy(elem, pointer_add(list->elems, index * list->elem_size), list->elem_size);
+    memcpy(elem, PointerAdd(list->elems, index * list->elemSize), list->elemSize);
 
     // 从 index 往前移动一位。
     if (list->length - 1 - index)
-        memmove(pointer_add(list->elems, index * list->elem_size),
-                pointer_add(list->elems, (list->length - 1) * list->elem_size),
-                list->elem_size);
+        memmove(PointerAdd(list->elems, index * list->elemSize),
+                PointerAdd(list->elems, (list->length - 1) * list->elemSize),
+                list->elemSize);
 
     list->length--;
     return 0;
 }
 
-int array_list_getset(array_list* list, const size_t index, void* elem) {
-    if (index >= list->length)
-        return 1;
+int ArrayList_GetSet(ArrayList* list, const size_t index, void* elem) {
+    if (index >= list->length) return 1;
 
-    void* tmp = malloc(list->elem_size);
-    memcpy(tmp, pointer_add(list->elems, index * list->elem_size), list->elem_size); // 元素先放临时变量中。
-    memcpy(pointer_add(list->elems, index * list->elem_size), elem, list->elem_size); // 设置元素。
-    memcpy(elem, tmp, list->elem_size);
+    void* tmp = malloc(list->elemSize);
+    memcpy(tmp, PointerAdd(list->elems, index * list->elemSize), list->elemSize); // 元素先放临时变量中。
+    memcpy(PointerAdd(list->elems, index * list->elemSize), elem, list->elemSize); // 设置元素。
+    memcpy(elem, tmp, list->elemSize);
     free(tmp);
     return 0;
 }
 
-int array_list_fprint(const array_list* list, FILE* f, list_elem_to_string str, size_t size_of_elem) {
+int ArrayList_FPrint(const ArrayList* list, FILE* f, ListElemToString str, size_t sizeOfElem) {
     fprintf(f, "[");
-    char s[size_of_elem + 1];
+    char s[sizeOfElem + 1];
     for (size_t i = 0; i < list->length - 1 && list->length; i++) {
-        const size_t len = str(pointer_add(list->elems, i * list->elem_size), s);
+        const size_t len = str(PointerAdd(list->elems, i * list->elemSize), s);
         s[len] = '\0';
         fprintf(f, "%s, ", s);
     }
     if (list->length) {
-        const size_t len = str(pointer_add(list->elems, (list->length - 1) * list->elem_size), s);
+        const size_t len = str(PointerAdd(list->elems, (list->length - 1) * list->elemSize), s);
         s[len] = '\0';
         fprintf(f, "%s", s);
     }

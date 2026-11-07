@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2025 ivfzhou
+ * Copyright (c) 2025 ivfzhou
  * data-structure-algorithm is licensed under Mulan PSL v2.
  * You can use this software according to the terms and conditions of the Mulan PSL v2.
  * You may obtain a copy of Mulan PSL v2 at:
@@ -10,28 +10,28 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#ifndef GITEE_COM_IVFZHOU_C_SORT_H
-#define GITEE_COM_IVFZHOU_C_SORT_H
+#ifndef CN_IVFZHOU_DATA_STRUCTURE_ALGORITHM_SORT_H
+#define CN_IVFZHOU_DATA_STRUCTURE_ALGORITHM_SORT_H
 
 // 冒泡。
-void sort_bubble(int length, int arr[]);
+void Sort_Bubble(int length, int arr[]);
 
 // 选择。
-void sort_select(int length, int arr[]);
+void Sort_Select(int length, int arr[]);
 
 // 插入。
-void sort_insert(int length, int arr[]);
+void Sort_Insert(int length, int arr[]);
 
 // 希尔。
-void sort_shell(int length, int arr[]);
+void Sort_Shell(int length, int arr[]);
 
 // 快速。
-void sort_quick(int length, int arr[]);
+void Sort_Quick(int length, int arr[]);
 
 // 归并。
-void sort_merge(int length, int arr[]);
+void Sort_Merge(int length, int arr[]);
 
 // 基数。
-void sort_radix(int length, int arr[]);
+void Sort_Radix(int length, int arr[]);
 
 #endif

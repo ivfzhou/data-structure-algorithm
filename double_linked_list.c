@@ -14,38 +14,33 @@
 
 #include "double_linked_list.h"
 
-static double_link_node* new_node(size_t size, const void* elem) {
-    double_link_node* newNode = malloc(sizeof(double_link_node));
+static DoubleLinkNode* newNode(size_t size, const void* elem) {
+    DoubleLinkNode* newNode = malloc(sizeof(DoubleLinkNode));
     newNode->elem = malloc(size);
     memcpy(newNode->elem, elem, size);
     newNode->next = newNode->prev = NULL;
     return newNode;
 }
 
-static double_link_node* get_node(const double_linked_list* list, size_t index) {
-    double_link_node* node;
+static DoubleLinkNode* getNode(const DoubleLinkedList* list, size_t index) {
+    DoubleLinkNode* node;
     if (index <= (list->length - 1) / 2) {
         node = list->head;
-        for (size_t i = 0; i < index; i++)
-            node = node->next;
-    }
-    else {
+        for (size_t i = 0; i < index; i++) node = node->next;
+    } else {
         node = list->tail;
-        for (size_t i = list->length - 1; i > index; i--)
-            node = node->prev;
+        for (size_t i = list->length - 1; i > index; i--) node = node->prev;
     }
     return node;
 }
 
-static double_link_node* pop_node(double_linked_list* list, size_t index) {
-    double_link_node* node;
+static DoubleLinkNode* popNode(DoubleLinkedList* list, size_t index) {
+    DoubleLinkNode* node;
     if (!index) {
         node = list->head;
         list->head = list->head->next;
-        if (list->length == 2)
-            list->tail = list->head->next = NULL;
-    }
-    else if (index == (list->length - 1)) {
+        if (list->length == 2) list->tail = list->head->next = NULL;
+    } else if (index == (list->length - 1)) {
         node = list->tail;
         if (list->length == 2)
             list->tail = NULL;
@@ -53,9 +48,8 @@ static double_link_node* pop_node(double_linked_list* list, size_t index) {
             list->tail = list->tail->prev;
             list->tail->next = NULL;
         }
-    }
-    else {
-        node = get_node(list, index);
+    } else {
+        node = getNode(list, index);
         node->prev->next = node->next;
         node->next->prev = node->prev;
     }
@@ -64,77 +58,68 @@ static double_link_node* pop_node(double_linked_list* list, size_t index) {
     return node;
 }
 
-double_linked_list* double_linked_list_alloc(size_t elem_size) {
-    double_linked_list* list = malloc(sizeof(double_linked_list));
-    list->elem_size = elem_size;
+DoubleLinkedList* DoubleLinkedList_Alloc(size_t elemSize) {
+    DoubleLinkedList* list = malloc(sizeof(DoubleLinkedList));
+    list->elemSize = elemSize;
     list->length = 0;
     list->head = list->tail = NULL;
     return list;
 }
 
-void double_linked_list_free(double_linked_list* list) {
-    double_link_node* node = list->head;
+void DoubleLinkedList_Free(DoubleLinkedList* list) {
+    DoubleLinkNode* node = list->head;
     for (size_t i = 0; i < list->length; i++) {
-        double_link_node* tmp = node->next;
+        DoubleLinkNode* tmp = node->next;
         free(node->elem);
         free(node);
         node = tmp;
     }
     list->length = 0;
-    list->elem_size = 0;
+    list->elemSize = 0;
     list->head = list->tail = NULL;
     free(list);
 }
 
-size_t double_linked_list_len(const double_linked_list* list) {
-    return list->length;
-}
+size_t DoubleLinkedList_Len(const DoubleLinkedList* list) { return list->length; }
 
-int double_linked_list_get(const double_linked_list* list, size_t index, void* elem) {
-    if (index >= list->length)
-        return 1;
-    double_link_node* node = get_node(list, index);
-    memcpy(elem, node->elem, list->elem_size);
+int DoubleLinkedList_Get(const DoubleLinkedList* list, size_t index, void* elem) {
+    if (index >= list->length) return 1;
+    DoubleLinkNode* node = getNode(list, index);
+    memcpy(elem, node->elem, list->elemSize);
     return 0;
 }
 
-int double_linked_list_insert(double_linked_list* list, size_t index, const void* elem) {
-    if (index > list->length)
-        return 1;
-    double_link_node* node = new_node(list->elem_size, elem);
+int DoubleLinkedList_Insert(DoubleLinkedList* list, size_t index, const void* elem) {
+    if (index > list->length) return 1;
+    DoubleLinkNode* node = newNode(list->elemSize, elem);
 
     if (!list->length) {
         // 第一次插入。
         list->head = node;
-    }
-    else if (list->length == 1) {
+    } else if (list->length == 1) {
         // 第二次插入。
         if (index) {
             node->prev = list->head;
             list->head->next = node;
             list->tail = node;
-        }
-        else {
+        } else {
             node->next = list->head;
             list->head->prev = node;
             list->tail = list->head;
             list->head = node;
         }
-    }
-    else if (index == list->length) {
+    } else if (index == list->length) {
         // 尾部追加。
         node->prev = list->tail;
         list->tail->next = node;
         list->tail = node;
-    }
-    else if (!index) {
+    } else if (!index) {
         // 头部追加。
         node->next = list->head;
         list->head->prev = node;
         list->head = node;
-    }
-    else {
-        double_link_node* indexNode = get_node(list, index);
+    } else {
+        DoubleLinkNode* indexNode = getNode(list, index);
         node->next = indexNode;
         node->prev = indexNode->prev;
         indexNode->prev->next = node;
@@ -145,18 +130,16 @@ int double_linked_list_insert(double_linked_list* list, size_t index, const void
     return 0;
 }
 
-int double_linked_list_del(double_linked_list* list, size_t index) {
-    if (index > list->length)
-        return 1;
-    double_link_node* node = pop_node(list, index);
+int DoubleLinkedList_Del(DoubleLinkedList* list, size_t index) {
+    if (index > list->length) return 1;
+    DoubleLinkNode* node = popNode(list, index);
     free(node->elem);
     free(node);
     return 0;
 }
 
-int double_linked_list_locate(const double_linked_list* list, list_elem_comparer cmp, const void* elem,
-                              size_t* index) {
-    double_link_node* node = list->head;
+int DoubleLinkedList_Locate(const DoubleLinkedList* list, ListElemComparer cmp, const void* elem, size_t* index) {
+    DoubleLinkNode* node = list->head;
     for (size_t i = 0; i < list->length; i++) {
         if (!cmp(node->elem, elem)) {
             *index = i;
@@ -167,8 +150,8 @@ int double_linked_list_locate(const double_linked_list* list, list_elem_comparer
     return 1;
 }
 
-int double_linked_list_travel(const double_linked_list* list, list_elem_visitor visit) {
-    double_link_node* node = list->head;
+int DoubleLinkedList_Travel(const DoubleLinkedList* list, ListElemVisitor visit) {
+    DoubleLinkNode* node = list->head;
     for (size_t i = 0; i < list->length; i++) {
         visit(node->elem);
         node = node->next;
@@ -176,10 +159,10 @@ int double_linked_list_travel(const double_linked_list* list, list_elem_visitor 
     return 0;
 }
 
-int double_linked_list_clear(double_linked_list* list) {
-    double_link_node* node = list->head;
+int DoubleLinkedList_Clear(DoubleLinkedList* list) {
+    DoubleLinkNode* node = list->head;
     for (size_t i = 0; i < list->length; i++) {
-        double_link_node* tmp = node->next;
+        DoubleLinkNode* tmp = node->next;
         free(node->elem);
         free(node);
         node = tmp;
@@ -189,57 +172,49 @@ int double_linked_list_clear(double_linked_list* list) {
     return 0;
 }
 
-int double_linked_list_rpop(double_linked_list* list, void* elem) {
-    return double_linked_list_getdel(list, list->length - 1, elem);
+int DoubleLinkedList_RPop(DoubleLinkedList* list, void* elem) {
+    return DoubleLinkedList_GetDel(list, list->length - 1, elem);
 }
 
-int double_linked_list_lpush(double_linked_list* list, const void* elem) {
-    return double_linked_list_insert(list, 0, elem);
+int DoubleLinkedList_LPush(DoubleLinkedList* list, const void* elem) { return DoubleLinkedList_Insert(list, 0, elem); }
+
+int DoubleLinkedList_RPush(DoubleLinkedList* list, const void* elem) {
+    return DoubleLinkedList_Insert(list, list->length, elem);
 }
 
-int double_linked_list_rpush(double_linked_list* list, const void* elem) {
-    return double_linked_list_insert(list, list->length, elem);
-}
+int DoubleLinkedList_LPop(DoubleLinkedList* list, void* elem) { return DoubleLinkedList_GetDel(list, 0, elem); }
 
-int double_linked_list_lpop(double_linked_list* list, void* elem) {
-    return double_linked_list_getdel(list, 0, elem);
-}
-
-int double_linked_list_set(double_linked_list* list, size_t index, const void* elem) {
-    if (index >= list->length)
-        return 1;
-    double_link_node* node = get_node(list, index);
-    memcpy(node->elem, elem, list->elem_size);
+int DoubleLinkedList_Set(DoubleLinkedList* list, size_t index, const void* elem) {
+    if (index >= list->length) return 1;
+    DoubleLinkNode* node = getNode(list, index);
+    memcpy(node->elem, elem, list->elemSize);
     return 0;
 }
 
-int double_linked_list_getdel(double_linked_list* list, size_t index, void* elem) {
-    if (index >= list->length)
-        return 1;
-    double_link_node* node = pop_node(list, index);
-    memcpy(elem, node->elem, list->elem_size);
+int DoubleLinkedList_GetDel(DoubleLinkedList* list, size_t index, void* elem) {
+    if (index >= list->length) return 1;
+    DoubleLinkNode* node = popNode(list, index);
+    memcpy(elem, node->elem, list->elemSize);
     free(node->elem);
     free(node);
     return 0;
 }
 
-int double_linked_list_getset(double_linked_list* list, size_t index, void* elem) {
-    if (index >= list->length)
-        return 1;
-    double_link_node* node = get_node(list, index);
-    void* tmp = malloc(list->elem_size);
-    memcpy(tmp, node->elem, list->elem_size);
-    memcpy(node->elem, elem, list->elem_size);
-    memcpy(elem, tmp, list->elem_size);
+int DoubleLinkedList_GetSet(DoubleLinkedList* list, size_t index, void* elem) {
+    if (index >= list->length) return 1;
+    DoubleLinkNode* node = getNode(list, index);
+    void* tmp = malloc(list->elemSize);
+    memcpy(tmp, node->elem, list->elemSize);
+    memcpy(node->elem, elem, list->elemSize);
+    memcpy(elem, tmp, list->elemSize);
     free(tmp);
     return 0;
 }
 
-int double_linked_list_fprint(const double_linked_list* list, FILE* f, list_elem_to_string str,
-                              size_t size_of_elem) {
+int DoubleLinkedList_FPrint(const DoubleLinkedList* list, FILE* f, ListElemToString str, size_t sizeOfElem) {
     fprintf(f, "[");
-    char s[size_of_elem + 1];
-    double_link_node* node = list->head;
+    char s[sizeOfElem + 1];
+    DoubleLinkNode* node = list->head;
     for (size_t i = 0; i < list->length - 1 && list->length; i++) {
         size_t len = str(node->elem, s);
         s[len] = '\0';

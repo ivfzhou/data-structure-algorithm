@@ -19,15 +19,14 @@
 
 #define TEST_LENGTH 20000
 
-static int int_cmp(const void* o1, const void* o2) {
+static int intCompare(const void* o1, const void* o2) {
     int* n1 = (int*)o1;
     int* n2 = (int*)o2;
-    if (*n1 == *n2)
-        return 0;
+    if (*n1 == *n2) return 0;
     return o1 > o2 ? 1 : -1;
 }
 
-static void int_visitor(void* p) {
+static void intVisitor(void* p) {
     static int prev = 1;
     int i = *(int*)p;
     assert(i == prev);
@@ -43,77 +42,77 @@ static void int_visitor(void* p) {
 }*/
 
 int main(void) {
-    circle_linked_list* list = circle_linked_list_alloc(sizeof(int));
+    CircleLinkedList* list = CircleLinkedList_Alloc(sizeof(int));
     assert(list);
 
     int elem = 2;
     size_t index = 0;
-    assert(!circle_linked_list_insert(list, index, &elem));
-    // circle_linked_list_fprint(list, stdout, int_to_string, 1); // [2]
+    assert(!CircleLinkedList_Insert(list, index, &elem));
+    // CircleLinkedList_fprint(list, stdout, int_to_string, 1); // [2]
     // puts("");
 
     elem = 1;
-    assert(!circle_linked_list_lpush(list, &elem));
-    // circle_linked_list_fprint(list, stdout, int_to_string, 1); // [1, 2]
+    assert(!CircleLinkedList_LPush(list, &elem));
+    // CircleLinkedList_fprint(list, stdout, int_to_string, 1); // [1, 2]
     // puts("");
 
     elem = 3;
-    assert(!circle_linked_list_rpush(list, &elem));
-    // circle_linked_list_fprint(list, stdout, int_to_string, 1); // [1, 2, 3]
+    assert(!CircleLinkedList_RPush(list, &elem));
+    // CircleLinkedList_fprint(list, stdout, int_to_string, 1); // [1, 2, 3]
     // puts("");
 
-    assert(!circle_linked_list_travel(list, int_visitor));
+    assert(!CircleLinkedList_Travel(list, intVisitor));
 
-    size_t length = circle_linked_list_len(list);
+    size_t length = CircleLinkedList_Len(list);
     assert(length == 3);
 
     elem = 4;
-    assert(!circle_linked_list_set(list, index, &elem));
-    // circle_linked_list_fprint(list, stdout, int_to_string, 1); // [4, 2, 3]
+    assert(!CircleLinkedList_Set(list, index, &elem));
+    // CircleLinkedList_fprint(list, stdout, int_to_string, 1); // [4, 2, 3]
     // puts("");
 
-    assert(!circle_linked_list_get(list, index, &elem));
+    assert(!CircleLinkedList_Get(list, index, &elem));
     assert(elem == 4);
 
     elem = 3;
-    assert(!circle_linked_list_locate(list, int_cmp, &elem, &index));
+    assert(!CircleLinkedList_Locate(list, intCompare, &elem, &index));
     assert(index == 2);
 
     elem = 4;
-    assert(!circle_linked_list_getset(list, index, &elem));
+    assert(!CircleLinkedList_GetSet(list, index, &elem));
     assert(elem == 3);
-    // circle_linked_list_fprint(list, stdout, int_to_string, 1); // [4, 2, 4]
+    // CircleLinkedList_fprint(list, stdout, int_to_string, 1); // [4, 2, 4]
     // puts("");
 
-    assert(!circle_linked_list_getdel(list, index, &elem));
+    assert(!CircleLinkedList_GetDel(list, index, &elem));
     assert(elem == 4);
-    // circle_linked_list_fprint(list, stdout, int_to_string, 1); // [4, 2]
+    // CircleLinkedList_fprint(list, stdout, int_to_string, 1); // [4, 2]
     // puts("");
 
-    assert(!circle_linked_list_lpop(list, &elem));
+    assert(!CircleLinkedList_LPop(list, &elem));
     assert(elem == 4);
-    // circle_linked_list_fprint(list, stdout, int_to_string, 1); // [2]
+    // CircleLinkedList_fprint(list, stdout, int_to_string, 1); // [2]
     // puts("");
 
-    assert(!circle_linked_list_rpop(list, &elem));
+    assert(!CircleLinkedList_RPop(list, &elem));
     assert(elem == 2);
-    // circle_linked_list_fprint(list, stdout, int_to_string, 1); // []
+    // CircleLinkedList_fprint(list, stdout, int_to_string, 1); // []
     // puts("");
 
     srand(time(NULL) + 100);
     for (int i = 0; i < TEST_LENGTH; i++) {
         elem = i + 1;
-        length = circle_linked_list_len(list);
+        length = CircleLinkedList_Len(list);
         index = rand() % (length + 1u);
-        assert(!circle_linked_list_insert(list, index, &elem));
+        assert(!CircleLinkedList_Insert(list, index, &elem));
     }
     for (int i = 0; i < TEST_LENGTH; i++) {
-        length = circle_linked_list_len(list);
+        length = CircleLinkedList_Len(list);
         index = rand() % length;
-        assert(!circle_linked_list_del(list, index));
+        assert(!CircleLinkedList_Del(list, index));
     }
 
-    assert(!circle_linked_list_clear(list));
+    assert(!CircleLinkedList_Clear(list));
 
-    circle_linked_list_free(list);
+    CircleLinkedList_Free(list);
 }

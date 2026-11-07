@@ -17,26 +17,15 @@
 #include "linked_list.h"
 #include "static_linked_list.h"
 
-list* list_alloc(size_t elem_size, list_impl_type type) {
-    list* list = malloc(sizeof(list));
+List* List_Alloc(size_t elemSize, ListImplType type) {
+    List* list = malloc(sizeof(list));
     switch (type) {
-    case list_impl_type_array:
-        list->impl = array_list_alloc(elem_size);
-        break;
-    case list_impl_type_linked:
-        list->impl = linked_list_alloc(elem_size);
-        break;
-    case list_impl_type_double_linked:
-        list->impl = double_linked_list_alloc(elem_size);
-        break;
-    case list_impl_type_static_linked:
-        list->impl = static_linked_list_alloc(elem_size);
-        break;
-    case list_impl_type_circle_linked:
-        list->impl = circle_linked_list_alloc(elem_size);
-        break;
-    default:
-        return NULL;
+    case ARRAY: list->impl = ArrayList_Alloc(elemSize); break;
+    case LINKED: list->impl = LinkedList_Alloc(elemSize); break;
+    case DOUBLE_LINKED: list->impl = DoubleLinkedList_Alloc(elemSize); break;
+    case STATIC_LINKED: list->impl = StaticLinkedList_Alloc(elemSize); break;
+    case CIRCLE_LINKED: list->impl = CircleLinkedList_Alloc(elemSize); break;
+    default: return NULL;
     }
     list->type = type;
     if (!list->impl) {
@@ -46,278 +35,178 @@ list* list_alloc(size_t elem_size, list_impl_type type) {
     return list;
 }
 
-void list_free(list* list) {
+void List_Free(List* list) {
     switch (list->type) {
-    case list_impl_type_array:
-        array_list_free(list->impl);
-        break;
-    case list_impl_type_linked:
-        linked_list_free(list->impl);
-        break;
-    case list_impl_type_double_linked:
-        double_linked_list_free(list->impl);
-        break;
-    case list_impl_type_static_linked:
-        static_linked_list_free(list->impl);
-        break;
-    case list_impl_type_circle_linked:
-        circle_linked_list_free(list->impl);
-        break;
+    case ARRAY: ArrayList_Free(list->impl); break;
+    case LINKED: LinkedList_Free(list->impl); break;
+    case DOUBLE_LINKED: DoubleLinkedList_Free(list->impl); break;
+    case STATIC_LINKED: StaticLinkedList_Free(list->impl); break;
+    case CIRCLE_LINKED: CircleLinkedList_Free(list->impl); break;
     }
     free(list);
 }
 
-size_t list_len(const list* list) {
+size_t List_Len(const List* list) {
     switch (list->type) {
-    case list_impl_type_array:
-        return array_list_len(list->impl);
-    case list_impl_type_linked:
-        return linked_list_len(list->impl);
-    case list_impl_type_double_linked:
-        return double_linked_list_len(list->impl);
-    case list_impl_type_static_linked:
-        return static_linked_list_len(list->impl);
-    case list_impl_type_circle_linked:
-        return circle_linked_list_len(list->impl);
-    default:
-        return 0;
+    case ARRAY: return ArrayList_Len(list->impl);
+    case LINKED: return LinkedList_Len(list->impl);
+    case DOUBLE_LINKED: return DoubleLinkedList_Len(list->impl);
+    case STATIC_LINKED: return StaticLinkedList_Len(list->impl);
+    case CIRCLE_LINKED: return CircleLinkedList_Len(list->impl);
+    default: return 0;
     }
 }
 
-int list_get(const list* list, size_t index, void* elem) {
+int List_Get(const List* list, size_t index, void* elem) {
     switch (list->type) {
-    case list_impl_type_array:
-        return array_list_get(list->impl, index, elem);
-    case list_impl_type_linked:
-        return linked_list_get(list->impl, index, elem);
-    case list_impl_type_double_linked:
-        return double_linked_list_get(list->impl, index, elem);
-    case list_impl_type_static_linked:
-        return static_linked_list_get(list->impl, index, elem);
-    case list_impl_type_circle_linked:
-        return circle_linked_list_get(list->impl, index, elem);
-    default:
-        return 1;
+    case ARRAY: return ArrayList_Get(list->impl, index, elem);
+    case LINKED: return LinkedList_Get(list->impl, index, elem);
+    case DOUBLE_LINKED: return DoubleLinkedList_Get(list->impl, index, elem);
+    case STATIC_LINKED: return StaticLinkedList_Get(list->impl, index, elem);
+    case CIRCLE_LINKED: return CircleLinkedList_Get(list->impl, index, elem);
+    default: return 1;
     }
 }
 
-int list_insert(list* list, size_t index, const void* elem) {
+int List_Insert(List* list, size_t index, const void* elem) {
     switch (list->type) {
-    case list_impl_type_array:
-        return array_list_insert(list->impl, index, elem);
-    case list_impl_type_linked:
-        return linked_list_insert(list->impl, index, elem);
-    case list_impl_type_double_linked:
-        return double_linked_list_insert(list->impl, index, elem);
-    case list_impl_type_static_linked:
-        return static_linked_list_insert(list->impl, index, elem);
-    case list_impl_type_circle_linked:
-        return circle_linked_list_insert(list->impl, index, elem);
-    default:
-        return 1;
+    case ARRAY: return ArrayList_Insert(list->impl, index, elem);
+    case LINKED: return LinkedList_Insert(list->impl, index, elem);
+    case DOUBLE_LINKED: return DoubleLinkedList_Insert(list->impl, index, elem);
+    case STATIC_LINKED: return StaticLinkedList_Insert(list->impl, index, elem);
+    case CIRCLE_LINKED: return CircleLinkedList_Insert(list->impl, index, elem);
+    default: return 1;
     }
 }
 
-int list_del(list* list, size_t index) {
+int List_Del(List* list, size_t index) {
     switch (list->type) {
-    case list_impl_type_array:
-        return array_list_del(list->impl, index);
-    case list_impl_type_linked:
-        return linked_list_del(list->impl, index);
-    case list_impl_type_double_linked:
-        return double_linked_list_del(list->impl, index);
-    case list_impl_type_static_linked:
-        return static_linked_list_del(list->impl, index);
-    case list_impl_type_circle_linked:
-        return circle_linked_list_del(list->impl, index);
-    default:
-        return 1;
+    case ARRAY: return ArrayList_Del(list->impl, index);
+    case LINKED: return LinkedList_Del(list->impl, index);
+    case DOUBLE_LINKED: return DoubleLinkedList_Del(list->impl, index);
+    case STATIC_LINKED: return StaticLinkedList_Del(list->impl, index);
+    case CIRCLE_LINKED: return CircleLinkedList_Del(list->impl, index);
+    default: return 1;
     }
 }
 
-int list_locate(const list* list, list_elem_comparer cmp, const void* elem, size_t* index) {
+int List_Locate(const List* list, ListElemComparer cmp, const void* elem, size_t* index) {
     switch (list->type) {
-    case list_impl_type_array:
-        return array_list_locate(list->impl, cmp, elem, index);
-    case list_impl_type_linked:
-        return linked_list_locate(list->impl, cmp, elem, index);
-    case list_impl_type_double_linked:
-        return double_linked_list_locate(list->impl, cmp, elem, index);
-    case list_impl_type_static_linked:
-        return static_linked_list_locate(list->impl, cmp, elem, index);
-    case list_impl_type_circle_linked:
-        return circle_linked_list_locate(list->impl, cmp, elem, index);
-    default:
-        return 1;
+    case ARRAY: return ArrayList_Locate(list->impl, cmp, elem, index);
+    case LINKED: return LinkedList_Locate(list->impl, cmp, elem, index);
+    case DOUBLE_LINKED: return DoubleLinkedList_Locate(list->impl, cmp, elem, index);
+    case STATIC_LINKED: return StaticLinkedList_Locate(list->impl, cmp, elem, index);
+    case CIRCLE_LINKED: return CircleLinkedList_Locate(list->impl, cmp, elem, index);
+    default: return 1;
     }
 }
 
-int list_travel(const list* list, list_elem_visitor visit) {
+int List_Travel(const List* list, ListElemVisitor visit) {
     switch (list->type) {
-    case list_impl_type_array:
-        return array_list_travel(list->impl, visit);
-    case list_impl_type_linked:
-        return linked_list_travel(list->impl, visit);
-    case list_impl_type_double_linked:
-        return double_linked_list_travel(list->impl, visit);
-    case list_impl_type_static_linked:
-        return static_linked_list_travel(list->impl, visit);
-    case list_impl_type_circle_linked:
-        return circle_linked_list_travel(list->impl, visit);
-    default:
-        return 1;
+    case ARRAY: return ArrayList_Travel(list->impl, visit);
+    case LINKED: return LinkedList_Travel(list->impl, visit);
+    case DOUBLE_LINKED: return DoubleLinkedList_Travel(list->impl, visit);
+    case STATIC_LINKED: return StaticLinkedList_Travel(list->impl, visit);
+    case CIRCLE_LINKED: return CircleLinkedList_Travel(list->impl, visit);
+    default: return 1;
     }
 }
 
-int list_clear(list* list) {
+int List_Clear(List* list) {
     switch (list->type) {
-    case list_impl_type_array:
-        return array_list_clear(list->impl);
-    case list_impl_type_linked:
-        return linked_list_clear(list->impl);
-    case list_impl_type_double_linked:
-        return double_linked_list_clear(list->impl);
-    case list_impl_type_static_linked:
-        return static_linked_list_clear(list->impl);
-    case list_impl_type_circle_linked:
-        return circle_linked_list_clear(list->impl);
-    default:
-        return 1;
+    case ARRAY: return ArrayList_Clear(list->impl);
+    case LINKED: return LinkedList_Clear(list->impl);
+    case DOUBLE_LINKED: return DoubleLinkedList_Clear(list->impl);
+    case STATIC_LINKED: return StaticLinkedList_Clear(list->impl);
+    case CIRCLE_LINKED: return CircleLinkedList_Clear(list->impl);
+    default: return 1;
     }
 }
 
-int list_rpop(list* list, void* elem) {
+int List_RPop(List* list, void* elem) {
     switch (list->type) {
-    case list_impl_type_array:
-        return array_list_rpop(list->impl, elem);
-    case list_impl_type_linked:
-        return linked_list_rpop(list->impl, elem);
-    case list_impl_type_double_linked:
-        return double_linked_list_rpop(list->impl, elem);
-    case list_impl_type_static_linked:
-        return static_linked_list_rpop(list->impl, elem);
-    case list_impl_type_circle_linked:
-        return circle_linked_list_rpop(list->impl, elem);
-    default:
-        return 1;
+    case ARRAY: return ArrayList_RPop(list->impl, elem);
+    case LINKED: return LinkedList_RPop(list->impl, elem);
+    case DOUBLE_LINKED: return DoubleLinkedList_RPop(list->impl, elem);
+    case STATIC_LINKED: return StaticLinkedList_RPop(list->impl, elem);
+    case CIRCLE_LINKED: return CircleLinkedList_RPop(list->impl, elem);
+    default: return 1;
     }
 }
 
-int list_lpush(list* list, const void* elem) {
+int List_LPush(List* list, const void* elem) {
     switch (list->type) {
-    case list_impl_type_array:
-        return array_list_lpush(list->impl, elem);
-    case list_impl_type_linked:
-        return linked_list_lpush(list->impl, elem);
-    case list_impl_type_double_linked:
-        return double_linked_list_lpush(list->impl, elem);
-    case list_impl_type_static_linked:
-        return static_linked_list_lpush(list->impl, elem);
-    case list_impl_type_circle_linked:
-        return circle_linked_list_lpush(list->impl, elem);
-    default:
-        return 1;
+    case ARRAY: return ArrayList_LPush(list->impl, elem);
+    case LINKED: return LinkedList_LPush(list->impl, elem);
+    case DOUBLE_LINKED: return DoubleLinkedList_LPush(list->impl, elem);
+    case STATIC_LINKED: return StaticLinkedList_LPush(list->impl, elem);
+    case CIRCLE_LINKED: return CircleLinkedList_LPush(list->impl, elem);
+    default: return 1;
     }
 }
 
-int list_rpush(list* list, const void* elem) {
+int List_RPush(List* list, const void* elem) {
     switch (list->type) {
-    case list_impl_type_array:
-        return array_list_rpush(list->impl, elem);
-    case list_impl_type_linked:
-        return linked_list_rpush(list->impl, elem);
-    case list_impl_type_double_linked:
-        return double_linked_list_rpush(list->impl, elem);
-    case list_impl_type_static_linked:
-        return static_linked_list_rpush(list->impl, elem);
-    case list_impl_type_circle_linked:
-        return circle_linked_list_rpush(list->impl, elem);
-    default:
-        return 1;
+    case ARRAY: return ArrayList_RPush(list->impl, elem);
+    case LINKED: return LinkedList_RPush(list->impl, elem);
+    case DOUBLE_LINKED: return DoubleLinkedList_RPush(list->impl, elem);
+    case STATIC_LINKED: return StaticLinkedList_RPush(list->impl, elem);
+    case CIRCLE_LINKED: return CircleLinkedList_RPush(list->impl, elem);
+    default: return 1;
     }
 }
 
-int list_lpop(list* list, void* elem) {
+int List_LPop(List* list, void* elem) {
     switch (list->type) {
-    case list_impl_type_array:
-        return array_list_lpop(list->impl, elem);
-    case list_impl_type_linked:
-        return linked_list_lpop(list->impl, elem);
-    case list_impl_type_double_linked:
-        return double_linked_list_lpop(list->impl, elem);
-    case list_impl_type_static_linked:
-        return static_linked_list_lpop(list->impl, elem);
-    case list_impl_type_circle_linked:
-        return circle_linked_list_lpop(list->impl, elem);
-    default:
-        return 1;
+    case ARRAY: return ArrayList_LPop(list->impl, elem);
+    case LINKED: return LinkedList_LPop(list->impl, elem);
+    case DOUBLE_LINKED: return DoubleLinkedList_LPop(list->impl, elem);
+    case STATIC_LINKED: return StaticLinkedList_LPop(list->impl, elem);
+    case CIRCLE_LINKED: return CircleLinkedList_LPop(list->impl, elem);
+    default: return 1;
     }
 }
 
-int list_set(const list* list, size_t index, const void* elem) {
+int List_Set(const List* list, size_t index, const void* elem) {
     switch (list->type) {
-    case list_impl_type_array:
-        return array_list_set(list->impl, index, elem);
-    case list_impl_type_linked:
-        return linked_list_set(list->impl, index, elem);
-    case list_impl_type_double_linked:
-        return double_linked_list_set(list->impl, index, elem);
-    case list_impl_type_static_linked:
-        return static_linked_list_set(list->impl, index, elem);
-    case list_impl_type_circle_linked:
-        return circle_linked_list_set(list->impl, index, elem);
-    default:
-        return 1;
+    case ARRAY: return ArrayList_Set(list->impl, index, elem);
+    case LINKED: return LinkedList_Set(list->impl, index, elem);
+    case DOUBLE_LINKED: return DoubleLinkedList_Set(list->impl, index, elem);
+    case STATIC_LINKED: return StaticLinkedList_Set(list->impl, index, elem);
+    case CIRCLE_LINKED: return CircleLinkedList_Set(list->impl, index, elem);
+    default: return 1;
     }
 }
 
-int list_getdel(list* list, size_t index, void* elem) {
+int List_GetDel(List* list, size_t index, void* elem) {
     switch (list->type) {
-    case list_impl_type_array:
-        return array_list_getdel(list->impl, index, elem);
-    case list_impl_type_linked:
-        return linked_list_getdel(list->impl, index, elem);
-    case list_impl_type_double_linked:
-        return double_linked_list_getdel(list->impl, index, elem);
-    case list_impl_type_static_linked:
-        return static_linked_list_getdel(list->impl, index, elem);
-    case list_impl_type_circle_linked:
-        return circle_linked_list_getdel(list->impl, index, elem);
-    default:
-        return 1;
+    case ARRAY: return ArrayList_GetDel(list->impl, index, elem);
+    case LINKED: return LinkedList_GetDel(list->impl, index, elem);
+    case DOUBLE_LINKED: return DoubleLinkedList_GetDel(list->impl, index, elem);
+    case STATIC_LINKED: return StaticLinkedList_GetDel(list->impl, index, elem);
+    case CIRCLE_LINKED: return CircleLinkedList_GetDel(list->impl, index, elem);
+    default: return 1;
     }
 }
 
-int list_getset(const list* list, size_t index, void* elem) {
+int List_GetSet(const List* list, size_t index, void* elem) {
     switch (list->type) {
-    case list_impl_type_array:
-        return array_list_getset(list->impl, index, elem);
-    case list_impl_type_linked:
-        return linked_list_getset(list->impl, index, elem);
-    case list_impl_type_double_linked:
-        return double_linked_list_getset(list->impl, index, elem);
-    case list_impl_type_static_linked:
-        return static_linked_list_getset(list->impl, index, elem);
-    case list_impl_type_circle_linked:
-        return circle_linked_list_getset(list->impl, index, elem);
-    default:
-        return 1;
+    case ARRAY: return ArrayList_GetSet(list->impl, index, elem);
+    case LINKED: return LinkedList_GetSet(list->impl, index, elem);
+    case DOUBLE_LINKED: return DoubleLinkedList_GetSet(list->impl, index, elem);
+    case STATIC_LINKED: return StaticLinkedList_GetSet(list->impl, index, elem);
+    case CIRCLE_LINKED: return CircleLinkedList_GetSet(list->impl, index, elem);
+    default: return 1;
     }
 }
 
-int list_fprint(const list* list, FILE* f, list_elem_to_string str, size_t size_of_elem) {
+int List_FPrint(const List* list, FILE* f, ListElemToString str, size_t sizeOfElem) {
     switch (list->type) {
-    case list_impl_type_array:
-        return array_list_fprint(list->impl, f, str, size_of_elem);
-    case list_impl_type_linked:
-        return linked_list_fprint(list->impl, f, str, size_of_elem);
-    case list_impl_type_double_linked:
-        return double_linked_list_fprint(list->impl, f, str, size_of_elem);
-    case list_impl_type_static_linked:
-        return static_linked_list_fprint(list->impl, f, str, size_of_elem);
-    case list_impl_type_circle_linked:
-        return circle_linked_list_fprint(list->impl, f, str, size_of_elem);
-    default:
-        return 1;
+    case ARRAY: return ArrayList_FPrint(list->impl, f, str, sizeOfElem);
+    case LINKED: return LinkedList_FPrint(list->impl, f, str, sizeOfElem);
+    case DOUBLE_LINKED: return DoubleLinkedList_FPrint(list->impl, f, str, sizeOfElem);
+    case STATIC_LINKED: return StaticLinkedList_FPrint(list->impl, f, str, sizeOfElem);
+    case CIRCLE_LINKED: return CircleLinkedList_FPrint(list->impl, f, str, sizeOfElem);
+    default: return 1;
     }
 }

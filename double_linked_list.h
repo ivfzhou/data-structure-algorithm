@@ -10,42 +10,42 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#ifndef GITEE_COM_IVFZHOU_C_DOUBLE_LINKED_LIST_H
-#define GITEE_COM_IVFZHOU_C_DOUBLE_LINKED_LIST_H
+#ifndef CN_IVFZHOU_DATA_STRUCTURE_ALGORITHM_DOUBLE_LINKED_LIST_H
+#define CN_IVFZHOU_DATA_STRUCTURE_ALGORITHM_DOUBLE_LINKED_LIST_H
 
 #include <stdlib.h>
 
 #include "list.h"
 
 // 双向链表节点。
-typedef struct double_link_node {
+typedef struct DoubleLinkNode {
     void* elem;
-    struct double_link_node *next, *prev;
-} double_link_node;
+    struct DoubleLinkNode *next, *prev;
+} DoubleLinkNode;
 
 // 双向链式线性表。
 typedef struct {
-    size_t elem_size, length;
-    double_link_node *head, *tail;
-} double_linked_list;
+    size_t elemSize, length;
+    DoubleLinkNode *head, *tail;
+} DoubleLinkedList;
 
 // 新建双向链表。
 // elemSize：每个元素占用的字节大小。
 // 时间复杂度：O(1)
 // 空间复杂度：O(1)
-double_linked_list* double_linked_list_alloc(size_t elem_size);
+DoubleLinkedList* DoubleLinkedList_Alloc(size_t elemSize);
 
 // 销毁双向链表。
 // list：双向链表。
 // 时间复杂度：O(n)
 // 空间复杂度：O(1)
-void double_linked_list_free(double_linked_list* list);
+void DoubleLinkedList_Free(DoubleLinkedList* list);
 
 // 获取双向链表中元素个数。
 // list：双向链表。
 // 时间复杂度：O(1)
 // 空间复杂度：O(1)
-size_t double_linked_list_len(const double_linked_list* list);
+size_t DoubleLinkedList_Len(const DoubleLinkedList* list);
 
 // 获取双向链表中某位置上的元素。
 // list：双向链表。
@@ -54,7 +54,7 @@ size_t double_linked_list_len(const double_linked_list* list);
 // 时间复杂度：O(n)
 // 空间复杂度：O(1)
 // 返回 1: 越界。
-int double_linked_list_get(const double_linked_list* list, size_t index, void* elem);
+int DoubleLinkedList_Get(const DoubleLinkedList* list, size_t index, void* elem);
 
 // 向双向链表中插入元素。
 // list：双向链表。
@@ -63,7 +63,7 @@ int double_linked_list_get(const double_linked_list* list, size_t index, void* e
 // 时间复杂度：O(n)
 // 空间复杂度：O(1)
 // 返回 1: 越界。
-int double_linked_list_insert(double_linked_list* list, size_t index, const void* elem);
+int DoubleLinkedList_Insert(DoubleLinkedList* list, size_t index, const void* elem);
 
 // 删除双向链表中某个位置上的元素。
 // list：双向链表。
@@ -71,7 +71,7 @@ int double_linked_list_insert(double_linked_list* list, size_t index, const void
 // 时间复杂度：O(n)
 // 空间复杂度：O(1)
 // 返回 1: 越界。
-int double_linked_list_del(double_linked_list* list, size_t index);
+int DoubleLinkedList_Del(DoubleLinkedList* list, size_t index);
 
 // 寻找元素在双向链表中的位置。
 // list：双向链表。
@@ -81,21 +81,20 @@ int double_linked_list_del(double_linked_list* list, size_t index);
 // 时间复杂度：O(n)
 // 空间复杂度：O(1)
 // 返回 1: 未找到。
-int double_linked_list_locate(const double_linked_list* list, list_elem_comparer cmp, const void* elem,
-                              size_t* index);
+int DoubleLinkedList_Locate(const DoubleLinkedList* list, ListElemComparer cmp, const void* elem, size_t* index);
 
 // 遍历双向链表。
 // list：双向链表。
 // visit：遍历函数。
 // 时间复杂度：O(n)
 // 空间复杂度：O(1)
-int double_linked_list_travel(const double_linked_list* list, list_elem_visitor visit);
+int DoubleLinkedList_Travel(const DoubleLinkedList* list, ListElemVisitor visit);
 
 // 清空双向链表中元素。
 // list：双向链表。
 // 时间复杂度：O(n)
 // 空间复杂度：O(1)
-int double_linked_list_clear(double_linked_list* list);
+int DoubleLinkedList_Clear(DoubleLinkedList* list);
 
 // 取出双向链表中最右边的元素。
 // list：双向链表。
@@ -103,21 +102,21 @@ int double_linked_list_clear(double_linked_list* list);
 // 时间复杂度：O(n)
 // 空间复杂度：O(1)
 // 返回 1: 越界。
-int double_linked_list_rpop(double_linked_list* list, void* elem);
+int DoubleLinkedList_RPop(DoubleLinkedList* list, void* elem);
 
 // 向双向链表左边添加元素。
 // list：双向链表。
 // elem：被添加的元素。
 // 时间复杂度：O(n)
 // 空间复杂度：O(1)
-int double_linked_list_lpush(double_linked_list* list, const void* elem);
+int DoubleLinkedList_LPush(DoubleLinkedList* list, const void* elem);
 
 // 向双向链表右边添加元素。
 // list：双向链表。
 // elem：被添加的元素。
 // 时间复杂度：O(n)
 // 空间复杂度：O(1)
-int double_linked_list_rpush(double_linked_list* list, const void* elem);
+int DoubleLinkedList_RPush(DoubleLinkedList* list, const void* elem);
 
 // 取出双向链表中最左边的元素。
 // list：双向链表。
@@ -125,7 +124,7 @@ int double_linked_list_rpush(double_linked_list* list, const void* elem);
 // 时间复杂度：O(n)
 // 空间复杂度：O(1)
 // 返回 1: 越界。
-int double_linked_list_lpop(double_linked_list* list, void* elem);
+int DoubleLinkedList_LPop(DoubleLinkedList* list, void* elem);
 
 // 设置双向链表中某个位置上的元素。
 // list：双向链表。
@@ -134,7 +133,7 @@ int double_linked_list_lpop(double_linked_list* list, void* elem);
 // 时间复杂度：O(n)
 // 空间复杂度：O(1)
 // 返回 1: 越界。
-int double_linked_list_set(double_linked_list* list, size_t index, const void* elem);
+int DoubleLinkedList_Set(DoubleLinkedList* list, size_t index, const void* elem);
 
 // 获取双向链表中元素然后删除它。
 // list：双向链表。
@@ -143,7 +142,7 @@ int double_linked_list_set(double_linked_list* list, size_t index, const void* e
 // 时间复杂度：O(n)
 // 空间复杂度：O(1)
 // 返回 1: 越界。
-int double_linked_list_getdel(double_linked_list* list, size_t index, void* elem);
+int DoubleLinkedList_GetDel(DoubleLinkedList* list, size_t index, void* elem);
 
 // 获取双向链表中元素然后设置新的值。
 // list：双向链表。
@@ -152,7 +151,7 @@ int double_linked_list_getdel(double_linked_list* list, size_t index, void* elem
 // 时间复杂度：O(n)
 // 空间复杂度：O(1)
 // 返回 1: 越界。
-int double_linked_list_getset(double_linked_list* list, size_t index, void* elem);
+int DoubleLinkedList_GetSet(DoubleLinkedList* list, size_t index, void* elem);
 
 // 打印双向链表中元素。
 // list：双向链表。
@@ -161,7 +160,6 @@ int double_linked_list_getset(double_linked_list* list, size_t index, void* elem
 // sizeOfElem：每个元素转字符串后占用的最大字节数。
 // 时间复杂度：O(n)
 // 空间复杂度：O(1)
-int double_linked_list_fprint(const double_linked_list* list, FILE* f, list_elem_to_string str,
-                              size_t size_of_elem);
+int DoubleLinkedList_FPrint(const DoubleLinkedList* list, FILE* f, ListElemToString str, size_t sizeOfElem);
 
 #endif

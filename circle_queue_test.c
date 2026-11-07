@@ -16,20 +16,20 @@
 #include "circle_queue.h"
 
 int main(void) {
-    circle_queue* queue = circle_queue_alloc(sizeof(int), 10);
+    CircleQueue* queue = CircleQueueAlloc(sizeof(int), 10);
     int elem;
     for (int i = 0; i < 10; i++) {
         elem = i + 1;
-        assert(!circle_queue_into(queue, &elem));
-        assert(circle_queue_len(queue) == i + 1);
+        assert(!CircleQueueInto(queue, &elem));
+        assert(CircleQueueLen(queue) == i + 1);
     }
-    assert(circle_queue_into(queue, &elem) == 1);
+    assert(CircleQueueInto(queue, &elem) == 1);
 
     for (int i = 0; i < 10; i++) {
-        assert(!circle_queue_exit(queue, &elem));
+        assert(!CircleQueueExit(queue, &elem));
         assert(elem == 1 + i);
-        assert(circle_queue_len(queue) == 9 - i);
+        assert(CircleQueueLen(queue) == 9 - i);
     }
-    assert(circle_queue_exit(queue, &elem) == 1);
-    circle_queue_free(queue);
+    assert(CircleQueueExit(queue, &elem) == 1);
+    CircleQueueFree(queue);
 }

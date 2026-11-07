@@ -14,13 +14,13 @@
 
 #include "stack.h"
 
-static void move(stack* from, stack* to) {
+static void move(Stack* from, Stack* to) {
     int disk;
-    stack_pop(from, &disk);
-    stack_push(to, &disk);
+    Stack_Pop(from, &disk);
+    Stack_Push(to, &disk);
 }
 
-void hanoi(int disks, stack* from, stack* to, stack* tmp) {
+void hanoi(int disks, Stack* from, Stack* to, Stack* tmp) {
     if (disks == 1) {
         move(from, to);
         return;
@@ -32,22 +32,22 @@ void hanoi(int disks, stack* from, stack* to, stack* tmp) {
 
 int main(void) {
     const int disks = 6;
-    stack* from = stack_alloc(sizeof(int), 256);
-    stack* to = stack_alloc(sizeof(int), 256);
-    stack* tmp = stack_alloc(sizeof(int), 256);
+    Stack* from = Stack_Alloc(sizeof(int), 256);
+    Stack* to = Stack_Alloc(sizeof(int), 256);
+    Stack* tmp = Stack_Alloc(sizeof(int), 256);
     for (int i = disks; i > 0; i--) {
-        stack_push(from, &i);
+        Stack_Push(from, &i);
     }
     hanoi(disks, from, to, tmp);
 
     int disk;
     for (int i = 0; i < disks; i++) {
-        stack_pop(to, &disk);
+        Stack_Pop(to, &disk);
         // printf("%d ", disk);
     }
     // puts("");
 
-    stack_free(from);
-    stack_free(to);
-    stack_free(tmp);
+    Stack_Free(from);
+    Stack_Free(to);
+    Stack_Free(tmp);
 }

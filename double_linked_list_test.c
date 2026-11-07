@@ -19,22 +19,21 @@
 
 #define TEST_LENGTH 50000
 
-static int int_cmp(const void* o1, const void* o2) {
+static int intCompare(const void* o1, const void* o2) {
     int* n1 = (int*)o1;
     int* n2 = (int*)o2;
-    if (*n1 == *n2)
-        return 0;
+    if (*n1 == *n2) return 0;
     return o1 > o2 ? 1 : -1;
 }
 
-static void int_visitor(void* p) {
+static void intVisitor(void* p) {
     static int prev = 1;
     int i = *(int*)p;
     assert(i == prev);
     prev = i + 1;
 }
 
-/*static size_t int_to_string(void *elem, char *s) {
+/*static size_t intToString(void *elem, char *s) {
     int x = *(int *) elem;
     char buf[12];
     int len = snprintf(buf, 12, "%d", x);
@@ -43,80 +42,80 @@ static void int_visitor(void* p) {
 }*/
 
 int main(void) {
-    double_linked_list* list = double_linked_list_alloc(sizeof(int));
+    DoubleLinkedList* list = DoubleLinkedList_Alloc(sizeof(int));
     assert(list);
 
     int elem = 2;
     size_t index = 0;
-    assert(!double_linked_list_insert(list, index, &elem));
-    // double_linked_list_fprint(list, stdout, int_to_string, 1); // [2]
+    assert(!DoubleLinkedList_Insert(list, index, &elem));
+    // double_linked_list_fprint(list, stdout, intToString, 1); // [2]
     // puts("");
 
     elem = 1;
-    assert(!double_linked_list_lpush(list, &elem));
-    // double_linked_list_fprint(list, stdout, int_to_string, 1); // [1, 2]
+    assert(!DoubleLinkedList_LPush(list, &elem));
+    // double_linked_list_fprint(list, stdout, intToString, 1); // [1, 2]
     // puts("");
 
     elem = 3;
-    assert(!double_linked_list_rpush(list, &elem));
-    // double_linked_list_fprint(list, stdout, int_to_string, 1); // [1, 2, 3]
+    assert(!DoubleLinkedList_RPush(list, &elem));
+    // double_linked_list_fprint(list, stdout, intToString, 1); // [1, 2, 3]
     // puts("");
 
-    assert(!double_linked_list_travel(list, int_visitor));
+    assert(!DoubleLinkedList_Travel(list, intVisitor));
 
-    size_t length = double_linked_list_len(list);
+    size_t length = DoubleLinkedList_Len(list);
     assert(length == 3);
 
     elem = 4;
-    assert(!double_linked_list_set(list, index, &elem));
-    // double_linked_list_fprint(list, stdout, int_to_string, 1); // [4, 2, 3]
+    assert(!DoubleLinkedList_Set(list, index, &elem));
+    // double_linked_list_fprint(list, stdout, intToString, 1); // [4, 2, 3]
     // puts("");
 
-    assert(!double_linked_list_get(list, index, &elem));
+    assert(!DoubleLinkedList_Get(list, index, &elem));
     assert(elem == 4);
 
     elem = 3;
-    assert(!double_linked_list_locate(list, int_cmp, &elem, &index));
+    assert(!DoubleLinkedList_Locate(list, intCompare, &elem, &index));
     assert(index == 2);
 
     elem = 4;
-    assert(!double_linked_list_getset(list, index, &elem));
+    assert(!DoubleLinkedList_GetSet(list, index, &elem));
     assert(elem == 3);
-    // double_linked_list_fprint(list, stdout, int_to_string, 1); // [4, 2, 4]
+    // double_linked_list_fprint(list, stdout, intToString, 1); // [4, 2, 4]
     // puts("");
 
-    assert(!double_linked_list_getdel(list, index, &elem));
+    assert(!DoubleLinkedList_GetDel(list, index, &elem));
     assert(elem == 4);
-    // double_linked_list_fprint(list, stdout, int_to_string, 1); // [4, 2]
+    // double_linked_list_fprint(list, stdout, intToString, 1); // [4, 2]
     // puts("");
 
-    assert(!double_linked_list_lpop(list, &elem));
+    assert(!DoubleLinkedList_LPop(list, &elem));
     assert(elem == 4);
-    // double_linked_list_fprint(list, stdout, int_to_string, 1); // [2]
+    // double_linked_list_fprint(list, stdout, intToString, 1); // [2]
     // puts("");
 
-    assert(!double_linked_list_rpop(list, &elem));
+    assert(!DoubleLinkedList_RPop(list, &elem));
     assert(elem == 2);
-    // double_linked_list_fprint(list, stdout, int_to_string, 1); // []
+    // double_linked_list_fprint(list, stdout, intToString, 1); // []
     // puts("");
 
     srand(time(NULL) + 100);
     int res = 0;
     for (int i = 0; i < TEST_LENGTH; i++) {
         elem = i + 1;
-        length = double_linked_list_len(list);
+        length = DoubleLinkedList_Len(list);
         index = rand() % (length + 1u);
-        assert(!double_linked_list_insert(list, index, &elem));
-        assert(!double_linked_list_get(list, index, &res));
+        assert(!DoubleLinkedList_Insert(list, index, &elem));
+        assert(!DoubleLinkedList_Get(list, index, &res));
         assert(res == elem);
     }
     for (int i = 0; i < TEST_LENGTH; i++) {
-        length = double_linked_list_len(list);
+        length = DoubleLinkedList_Len(list);
         index = rand() % length;
-        assert(!double_linked_list_del(list, index));
+        assert(!DoubleLinkedList_Del(list, index));
     }
 
-    assert(!double_linked_list_clear(list));
+    assert(!DoubleLinkedList_Clear(list));
 
-    double_linked_list_free(list);
+    DoubleLinkedList_Free(list);
 }

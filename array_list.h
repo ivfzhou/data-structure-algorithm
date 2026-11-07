@@ -10,8 +10,8 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#ifndef GITEE_COM_IVFZHOU_C_ARRAY_LIST_H
-#define GITEE_COM_IVFZHOU_C_ARRAY_LIST_H
+#ifndef CN_IVFZHOU_DATA_STRUCTURE_ALGORITHM_ARRAY_LIST_H
+#define CN_IVFZHOU_DATA_STRUCTURE_ALGORITHM_ARRAY_LIST_H
 
 #include <stdlib.h>
 
@@ -19,27 +19,27 @@
 
 // 顺序线性表。
 typedef struct {
-    size_t length, capacity, elem_size;
+    size_t length, capacity, elemSize;
     void* elems;
-} array_list;
+} ArrayList;
 
 // 新建顺序表。
-// elem_size：每个元素占用的字节大小。
+// elemSize：每个元素占用的字节大小。
 // 时间复杂度：O(1)
 // 空间复杂度：O(1)
-array_list* array_list_alloc(size_t elem_size);
+ArrayList* ArrayList_Alloc(size_t elemSize);
 
 // 销毁顺序表。
 // list：顺序表。
 // 时间复杂度：O(1)
 // 空间复杂度：O(1)
-void array_list_free(array_list* list);
+void ArrayList_Free(ArrayList* list);
 
 // 获取顺序表中元素个数。
 // list：顺序表。
 // 时间复杂度：O(1)
 // 空间复杂度：O(1)
-size_t array_list_len(const array_list* list);
+size_t ArrayList_Len(const ArrayList* list);
 
 // 获取顺序表元素。
 // list：顺序表。
@@ -48,7 +48,7 @@ size_t array_list_len(const array_list* list);
 // 时间复杂度：O(1)
 // 空间复杂度：O(1)
 // 返回 1: 越界。
-int array_list_get(const array_list* list, size_t index, void* elem);
+int ArrayList_Get(const ArrayList* list, size_t index, void* elem);
 
 // 向顺序表中插入元素。
 // list：顺序表。
@@ -57,7 +57,7 @@ int array_list_get(const array_list* list, size_t index, void* elem);
 // 时间复杂度：O(1)
 // 空间复杂度：O(1)
 // 返回 1: 越界。
-int array_list_insert(array_list* list, size_t index, const void* elem);
+int ArrayList_Insert(ArrayList* list, size_t index, const void* elem);
 
 // 删除顺序表中一个元素。
 // list：顺序表。
@@ -65,7 +65,7 @@ int array_list_insert(array_list* list, size_t index, const void* elem);
 // 时间复杂度：O(1)
 // 空间复杂度：O(1)
 // 返回 1: 越界。
-int array_list_del(array_list* list, size_t index);
+int ArrayList_Del(ArrayList* list, size_t index);
 
 // 获取一个元素在顺序表中的位置。
 // list：顺序表。
@@ -75,20 +75,20 @@ int array_list_del(array_list* list, size_t index);
 // 时间复杂度：O(n)
 // 空间复杂度：O(1)
 // 返回 1: 未找到。
-int array_list_locate(const array_list* list, list_elem_comparer cmp, const void* elem, size_t* index);
+int ArrayList_Locate(const ArrayList* list, ListElemComparer cmp, const void* elem, size_t* index);
 
 // 遍历顺序表。
 // list：顺序表。
 // visit：遍历函数。
 // 时间复杂度：O(n)
 // 空间复杂度：O(1)
-int array_list_travel(const array_list* list, list_elem_visitor visit);
+int ArrayList_Travel(const ArrayList* list, ListElemVisitor visit);
 
 // 清除顺序表中所有元素。
 // list：顺序表。
 // 时间复杂度：O(1)
 // 空间复杂度：O(1)
-int array_list_clear(array_list* list);
+int ArrayList_Clear(ArrayList* list);
 
 // 取出顺序表中的最右边的元素。
 // list：顺序表。
@@ -96,21 +96,21 @@ int array_list_clear(array_list* list);
 // 时间复杂度：O(1)
 // 空间复杂度：O(1)
 // 返回 1: 越界。
-int array_list_rpop(array_list* list, void* elem);
+int ArrayList_RPop(ArrayList* list, void* elem);
 
 // 在顺序表中的最左边位置添加元素。
 // list：顺序表。
 // elem：被添加的元素。
 // 时间复杂度：O(1)
 // 空间复杂度：O(1)
-int array_list_lpush(array_list* list, const void* elem);
+int ArrayList_LPush(ArrayList* list, const void* elem);
 
 // 在顺序表中的最右边位置添加元素。
 // list：顺序表。
 // elem：被添加的元素。
 // 时间复杂度：O(1)
 // 空间复杂度：O(1)
-int array_list_rpush(array_list* list, const void* elem);
+int ArrayList_RPush(ArrayList* list, const void* elem);
 
 // 取出顺序表中的最左边的元素。
 // list：顺序表。
@@ -118,7 +118,7 @@ int array_list_rpush(array_list* list, const void* elem);
 // 时间复杂度：O(1)
 // 空间复杂度：O(1)
 // 返回 1: 越界。
-int array_list_lpop(array_list* list, void* elem);
+int ArrayList_LPop(ArrayList* list, void* elem);
 
 // 设置顺序表的一个位置上的元素。
 // list：顺序表。
@@ -127,7 +127,7 @@ int array_list_lpop(array_list* list, void* elem);
 // 时间复杂度：O(1)
 // 空间复杂度：O(1)
 // 返回 1: 越界。
-int array_list_set(array_list* list, size_t index, const void* elem);
+int ArrayList_Set(ArrayList* list, size_t index, const void* elem);
 
 // 删除并且取出顺序表中的元素。
 // list：顺序表。
@@ -135,7 +135,7 @@ int array_list_set(array_list* list, size_t index, const void* elem);
 // 时间复杂度：O(1)
 // 空间复杂度：O(1)
 // 返回 1: 越界。
-int array_list_getdel(array_list* list, size_t index, void* elem);
+int ArrayList_GetDel(ArrayList* list, size_t index, void* elem);
 
 // 取出顺序表中的元素并在同一位置设置新元素。
 // list：顺序表。
@@ -144,15 +144,15 @@ int array_list_getdel(array_list* list, size_t index, void* elem);
 // 时间复杂度：O(1)
 // 空间复杂度：O(1)
 // 返回 1: 越界。
-int array_list_getset(array_list* list, size_t index, void* elem);
+int ArrayList_GetSet(ArrayList* list, size_t index, void* elem);
 
 // 打印顺序表中的元素。
 // list：顺序表。
 // f：打印输出对象。
 // str：元素转字符串表示函数。
-// size_of_elem：每个元素的字符串表示形式所占用的最大字节大小。
+// sizeOfElem：每个元素的字符串表示形式所占用的最大字节大小。
 // 时间复杂度：O(n)
 // 空间复杂度：O(1)
-int array_list_fprint(const array_list* list, FILE* f, list_elem_to_string str, size_t size_of_elem);
+int ArrayList_FPrint(const ArrayList* list, FILE* f, ListElemToString str, size_t sizeOfElem);
 
 #endif

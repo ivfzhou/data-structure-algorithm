@@ -16,17 +16,16 @@
 #include "linked_queue.h"
 
 int main(void) {
-    linked_queue* queue = linked_queue_alloc(sizeof(int));
+    LinkedQueue* queue = LinkedQueue_Alloc(sizeof(int));
     assert(queue);
 
-    for (int i = 100; i > 0; i--)
-        assert(!linked_queue_into(queue, &i));
-    assert(linked_queue_len(queue) == 100);
+    for (int i = 100; i > 0; i--) assert(!LinkedQueue_Into(queue, &i));
+    assert(LinkedQueue_Len(queue) == 100);
     for (int i = 100; i > 0; i--) {
         int tmp;
-        assert(!linked_queue_exit(queue, &tmp));
+        assert(!LinkedQueue_Exit(queue, &tmp));
         assert(tmp == i);
     }
 
-    linked_queue_free(queue);
+    LinkedQueue_Free(queue);
 }

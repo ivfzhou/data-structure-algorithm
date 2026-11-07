@@ -16,19 +16,19 @@
 #include "stack.h"
 
 int main(void) {
-    stack* s = stack_alloc(sizeof(int), 10);
+    Stack* s = Stack_Alloc(sizeof(int), 10);
     assert(s);
-    assert(stack_isempty(s));
+    assert(Stack_IsEmpty(s));
     int elem = 1;
-    stack_push(s, &elem);
+    Stack_Push(s, &elem);
     elem = 2;
-    stack_push(s, &elem);
-    stack_pop(s, &elem);
+    Stack_Push(s, &elem);
+    Stack_Pop(s, &elem);
     assert(elem == 2);
-    assert(!stack_peektop(s, &elem));
+    assert(!Stack_PeekTop(s, &elem));
     assert(elem == 1);
-    stack_pop(s, &elem);
+    Stack_Pop(s, &elem);
     assert(elem == 1);
-    assert(stack_isempty(s));
-    stack_free(s);
+    assert(Stack_IsEmpty(s));
+    Stack_Free(s);
 }

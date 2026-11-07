@@ -10,62 +10,62 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#ifndef GITEE_COM_IVFZHOU_C_STACK_H
-#define GITEE_COM_IVFZHOU_C_STACK_H
+#ifndef CN_IVFZHOU_DATA_STRUCTURE_ALGORITHM_STACK_H
+#define CN_IVFZHOU_DATA_STRUCTURE_ALGORITHM_STACK_H
 
 #include <stdlib.h>
 
 // 栈。
 typedef struct {
     void *bottom, *top;
-    size_t size_of_elem;
+    size_t sizeOfElem;
     size_t length;
-} stack;
+} Stack;
 
 // 入栈。
 // s：栈。
 // elem：元素。
 // 时间复杂度：O(1)
 // 空间复杂度：O(1)
-void stack_push(stack* s, const void* elem);
+void Stack_Push(Stack* s, const void* elem);
 
 // 出栈。
 // s：栈。
 // elem：元素值塞入elem中。
 // 时间复杂度：O(1)
 // 空间复杂度：O(1)
-void stack_pop(stack* s, void* elem);
+void Stack_Pop(Stack* s, void* elem);
 
 // 栈中是否没有元素。
 // s：栈。
 // 时间复杂度：O(1)
 // 空间复杂度：O(1)
-_Bool stack_isempty(const stack* s);
+_Bool Stack_IsEmpty(const Stack* s);
 
 // 新建栈。
 // sizeOfElem：每个元素占用的字节大小。
 // maxLength：栈中最多元素个数。
 // 时间复杂度：O(1)
 // 空间复杂度：O(1)
-stack* stack_alloc(size_t size_of_elem, size_t max_length);
+Stack* Stack_Alloc(size_t size_of_elem, size_t max_length);
 
 // 销毁栈。
 // s：栈。
 // 时间复杂度：O(1)
 // 空间复杂度：O(1)
-void stack_free(stack* s);
+void Stack_Free(Stack* s);
 
 // 获取栈顶元素。
 // s：栈。
 // elem：元素值塞入elem中。
 // 时间复杂度：O(1)
 // 空间复杂度：O(1)
-int stack_peektop(const stack* s, void* elem);
+int Stack_PeekTop(const Stack* s, void* elem);
 
 // 栈是否已满。
 // s：栈。
 // 时间复杂度：O(1)
 // 空间复杂度：O(1)
-_Bool stack_isfull(const stack* s);
+_Bool Stack_IsFull(const Stack* s);
 
 #endif

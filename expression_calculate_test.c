@@ -12,22 +12,23 @@
 
 // 算术表达式运算。
 
-#include <string.h>
-#include <signal.h>
 #include <assert.h>
+#include <signal.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "stack.h"
 
-static _Bool is_operator(char c) {
+static _Bool isOperator(char c) {
     const static char operators[] = "+-*/()";
     int i = 0;
     char o;
-    while ((o = operators[i++])) if (c == o) return 1;
+    while ((o = operators[i++]))
+        if (c == o) return 1;
     return 0;
 }
 
-static int is_precede(char s1, char s2) {
+static int isPrecede(char s1, char s2) {
     if (!s1) return -1;
     switch (s1) {
     case '+':
@@ -35,12 +36,10 @@ static int is_precede(char s1, char s2) {
         switch (s2) {
         case '+':
         case '-':
-        case ')':
-            return 1;
+        case ')': return 1;
         case '/':
         case '(':
-        case '*':
-            return -1;
+        case '*': return -1;
         }
         break;
     case '/':
@@ -48,23 +47,18 @@ static int is_precede(char s1, char s2) {
         switch (s2) {
         case '+':
         case '-':
-        case ')':
-            return 1;
+        case ')': return 1;
         case '(':
         case '/':
-        case '*':
-            return -1;
+        case '*': return -1;
         }
         break;
     case '(':
         switch (s2) {
-        case ')':
-            return 0;
-        default:
-            return -1;
+        case ')': return 0;
+        default: return -1;
         }
-    case ')':
-        return 1;
+    case ')': return 1;
     }
     raise(SIGABRT);
     return 0;
@@ -72,93 +66,84 @@ static int is_precede(char s1, char s2) {
 
 static long double calculate(long double x, char optr, long double y) {
     switch (optr) {
-    case '+':
-        return x + y;
-    case '-':
-        return x - y;
-    case '/':
-        return x / y;
-    case '*':
-        return x * y;
+    case '+': return x + y;
+    case '-': return x - y;
+    case '/': return x / y;
+    case '*': return x * y;
     }
     raise(SIGABRT);
     return 0;
 }
 
-long double expression_calculate(const char* expr) {
-    stack* operator = stack_alloc(sizeof(char), 1024);
-    stack* operand = stack_alloc(sizeof(long double), 1024);
+long double expressionCalculate(const char* expr) {
+    Stack* operator = Stack_Alloc(sizeof(char), 1024);
+    Stack* operand = Stack_Alloc(sizeof(long double), 1024);
 
     size_t len = strlen(expr);
     for (int i = 0; i < len; i++) {
         char c = expr[i];
-        if (!is_operator(c)) {
+        if (!isOperator(c)) {
             char tmp[] = {c, '\0'};
             long double num = strtold(tmp, NULL);
-            stack_push(operand, &num);
-        }
-        else {
+            Stack_Push(operand, &num);
+        } else {
             char optr;
-            if (stack_peektop(operator, &optr)) optr = '\0';
-            switch (is_precede(optr, c)) {
+            if (Stack_PeekTop(operator, &optr)) optr = '\0';
+            switch (isPrecede(optr, c)) {
             case 1:
-                stack_pop(operator, &optr);
+                Stack_Pop(operator, &optr);
                 long double x, y;
-                stack_pop(operand, &x);
-                stack_pop(operand, &y);
+                Stack_Pop(operand, &x);
+                Stack_Pop(operand, &y);
                 long double res = calculate(y, optr, x);
 
-            // 去除括号
+                // 去除括号
                 if (c == ')') {
-                    stack_pop(operator, &optr);
+                    Stack_Pop(operator, &optr);
                     if (optr != '(') {
                         fprintf(stderr, "括号不匹配");
                         raise(SIGABRT);
                     }
                 }
 
-                stack_push(operand, &res);
+                Stack_Push(operand, &res);
                 break;
-            case -1:
-                stack_push(operator, &c);
-                break;
-            case 0:
-                stack_pop(operator, &optr);
-                break;
+            case -1: Stack_Push(operator, &c); break;
+            case 0: Stack_Pop(operator, &optr); break;
             }
         }
     }
 
-    while (!stack_isempty(operator)) {
+    while (!Stack_IsEmpty(operator)) {
         char optr;
-        stack_pop(operator, &optr);
+        Stack_Pop(operator, &optr);
         long double x, y;
-        stack_pop(operand, &x);
-        stack_pop(operand, &y);
+        Stack_Pop(operand, &x);
+        Stack_Pop(operand, &y);
         long double res = calculate(y, optr, x);
-        stack_push(operand, &res);
+        Stack_Push(operand, &res);
     }
 
     long double count = 0;
-    stack_pop(operand, &count);
+    Stack_Pop(operand, &count);
 
-    if (!stack_isempty(operator) || !stack_isempty(operand)) {
+    if (!Stack_IsEmpty(operator) || !Stack_IsEmpty(operand)) {
         fprintf(stderr, "算式非法");
         raise(SIGABRT);
     }
 
-    stack_free(operand);
-    stack_free(operator);
+    Stack_Free(operand);
+    Stack_Free(operator);
     return count;
 }
 
 int main(void) {
-    assert(expression_calculate("1+1") == 2);
-    assert(expression_calculate("1-1") == 0);
-    assert(expression_calculate("9/3") == 3);
-    assert(expression_calculate("3*3") == 9);
-    assert(expression_calculate("3+3/3") == 4);
-    assert(expression_calculate("(1+3)*4") == 16);
-    assert(expression_calculate("((1+3)/2)*4") == 8);
-    assert(expression_calculate("((1+3)/2)*(4-2)") == 4);
+    assert(expressionCalculate("1+1") == 2);
+    assert(expressionCalculate("1-1") == 0);
+    assert(expressionCalculate("9/3") == 3);
+    assert(expressionCalculate("3*3") == 9);
+    assert(expressionCalculate("3+3/3") == 4);
+    assert(expressionCalculate("(1+3)*4") == 16);
+    assert(expressionCalculate("((1+3)/2)*4") == 8);
+    assert(expressionCalculate("((1+3)/2)*(4-2)") == 4);
 }

@@ -10,23 +10,25 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#include <stdlib.h>
 #include <stdint.h>
+#include <stdlib.h>
 
-void* pointer_add(void* p1, const size_t delta) {
-    uintptr_t ptr = (uintptr_t)p1;
+#include "common.h"
+
+void* PointerAdd(void* p, const size_t delta) {
+    uintptr_t ptr = (uintptr_t)p;
     ptr += delta;
     return (void*)ptr;
 }
 
-void* pointer_minus(void* p, size_t delta) {
+void* PointerMinus(void* p, size_t delta) {
     uintptr_t ptr = (uintptr_t)p;
     ptr -= delta;
     return (void*)ptr;
 }
 
-unsigned long long pointer_diff(void* p0, void* p1) {
-    const uintptr_t ptr0 = (uintptr_t)p0;
-    const uintptr_t ptr1 = (uintptr_t)p1;
-    return ptr0 - ptr1;
+unsigned long long PointerDiff(void* p1, void* p2) {
+    const uintptr_t ptr = (uintptr_t)p1;
+    const uintptr_t ptr2 = (uintptr_t)p2;
+    return ptr - ptr2;
 }

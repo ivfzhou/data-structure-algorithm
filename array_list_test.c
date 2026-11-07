@@ -19,22 +19,21 @@
 
 #define TEST_LENGTH 500000
 
-static int int_cmp(const void* o1, const void* o2) {
+static int intCompare(const void* o1, const void* o2) {
     int* n1 = (int*)o1;
     int* n2 = (int*)o2;
-    if (*n1 == *n2)
-        return 0;
+    if (*n1 == *n2) return 0;
     return o1 > o2 ? 1 : -1;
 }
 
-static void int_visitor(void* p) {
+static void intVisitor(void* p) {
     static int prev = 1;
     int i = *(int*)p;
     assert(i == prev);
     prev = i + 1;
 }
 
-/*static size_t int_to_string(void *elem, char *s) {
+/*static size_t intToString(void *elem, char *s) {
     int x = *(int *) elem;
     char buf[12];
     int len = snprintf(buf, 12, "%d", x);
@@ -43,80 +42,80 @@ static void int_visitor(void* p) {
 }*/
 
 int main(void) {
-    array_list* list = array_list_alloc(sizeof(int));
+    ArrayList* list = ArrayList_Alloc(sizeof(int));
     assert(list);
 
     int elem = 2;
     size_t index = 0;
-    assert(!array_list_insert(list, index, &elem));
-    // arrayList_fprint(list, stdout, int_to_string, 1); // [2]
+    assert(!ArrayList_Insert(list, index, &elem));
+    // arrayList_fprint(list, stdout, intToString, 1); // [2]
     // puts("");
 
     elem = 1;
-    assert(!array_list_lpush(list, &elem));
-    // arrayList_fprint(list, stdout, int_to_string, 1); // [1, 2]
+    assert(!ArrayList_LPush(list, &elem));
+    // arrayList_fprint(list, stdout, intToString, 1); // [1, 2]
     // puts("");
 
     elem = 3;
-    assert(!array_list_rpush(list, &elem));
-    // arrayList_fprint(list, stdout, int_to_string, 1); // [1, 2, 3]
+    assert(!ArrayList_RPush(list, &elem));
+    // arrayList_fprint(list, stdout, intToString, 1); // [1, 2, 3]
     // puts("");
 
-    assert(!array_list_travel(list, int_visitor));
+    assert(!ArrayList_Travel(list, intVisitor));
 
-    size_t length = array_list_len(list);
+    size_t length = ArrayList_Len(list);
     assert(length == 3);
 
     elem = 4;
-    assert(!array_list_set(list, index, &elem));
-    // arrayList_fprint(list, stdout, int_to_string, 1); // [4, 2, 3]
+    assert(!ArrayList_Set(list, index, &elem));
+    // arrayList_fprint(list, stdout, intToString, 1); // [4, 2, 3]
     // puts("");
 
-    assert(!array_list_get(list, index, &elem));
+    assert(!ArrayList_Get(list, index, &elem));
     assert(elem == 4);
 
     elem = 3;
-    assert(!array_list_locate(list, int_cmp, &elem, &index));
+    assert(!ArrayList_Locate(list, intCompare, &elem, &index));
     assert(index == 2);
 
     elem = 4;
-    assert(!array_list_getset(list, index, &elem));
+    assert(!ArrayList_GetSet(list, index, &elem));
     assert(elem == 3);
-    // arrayList_fprint(list, stdout, int_to_string, 1); // [4, 2, 4]
+    // arrayList_fprint(list, stdout, intToString, 1); // [4, 2, 4]
     // puts("");
 
-    assert(!array_list_getdel(list, index, &elem));
+    assert(!ArrayList_GetDel(list, index, &elem));
     assert(elem == 4);
-    // arrayList_fprint(list, stdout, int_to_string, 1); // [4, 2]
+    // arrayList_fprint(list, stdout, intToString, 1); // [4, 2]
     // puts("");
 
-    assert(!array_list_lpop(list, &elem));
+    assert(!ArrayList_LPop(list, &elem));
     assert(elem == 4);
-    // arrayList_fprint(list, stdout, int_to_string, 1); // [2]
+    // arrayList_fprint(list, stdout, intToString, 1); // [2]
     // puts("");
 
-    assert(!array_list_rpop(list, &elem));
+    assert(!ArrayList_RPop(list, &elem));
     assert(elem == 2);
-    // arrayList_fprint(list, stdout, int_to_string, 1); // []
+    // arrayList_fprint(list, stdout, intToString, 1); // []
     // puts("");
 
     srand(time(NULL) + 100);
     int res = 0;
     for (int i = 0; i < TEST_LENGTH; i++) {
         elem = i + 1;
-        length = array_list_len(list);
+        length = ArrayList_Len(list);
         index = rand() % (length + 1u);
-        assert(!array_list_insert(list, index, &elem));
-        assert(!array_list_get(list, index, &res));
+        assert(!ArrayList_Insert(list, index, &elem));
+        assert(!ArrayList_Get(list, index, &res));
         assert(res == elem);
     }
     for (int i = 0; i < TEST_LENGTH; i++) {
-        length = array_list_len(list);
+        length = ArrayList_Len(list);
         index = rand() % length;
-        assert(!array_list_del(list, index));
+        assert(!ArrayList_Del(list, index));
     }
 
-    assert(!array_list_clear(list));
+    assert(!ArrayList_Clear(list));
 
-    array_list_free(list);
+    ArrayList_Free(list);
 }

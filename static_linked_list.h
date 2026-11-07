@@ -10,8 +10,8 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#ifndef GITEE_COM_IVFZHOU_C_STATIC_LINKED_LIST_H
-#define GITEE_COM_IVFZHOU_C_STATIC_LINKED_LIST_H
+#ifndef CN_IVFZHOU_DATA_STRUCTURE_ALGORITHM_STATIC_LINKED_LIST_H
+#define CN_IVFZHOU_DATA_STRUCTURE_ALGORITHM_STATIC_LINKED_LIST_H
 
 #include <stdlib.h>
 
@@ -22,25 +22,25 @@ typedef struct {
     size_t length, capacity, elem_size;
     unsigned* indexes;
     void* elems;
-} static_linked_list;
+} StaticLinkedList;
 
 // 新建静态链表。
 // elemSize：每个元素占用的字节大小。
 // 时间复杂度：O(1)
 // 空间复杂度：O(1)
-static_linked_list* static_linked_list_alloc(size_t elem_size);
+StaticLinkedList* StaticLinkedList_Alloc(size_t elem_size);
 
 // 销毁静态链表。
 // list：静态链表。
 // 时间复杂度：O(1)
 // 空间复杂度：O(1)
-void static_linked_list_free(static_linked_list* list);
+void StaticLinkedList_Free(StaticLinkedList* list);
 
 // 获取静态链表中元素个数。
 // list：静态链表。
 // 时间复杂度：O(1)
 // 空间复杂度：O(1)
-size_t static_linked_list_len(const static_linked_list* list);
+size_t StaticLinkedList_Len(const StaticLinkedList* list);
 
 // 获取静态链表中的元素。
 // list：静态链表。
@@ -49,7 +49,7 @@ size_t static_linked_list_len(const static_linked_list* list);
 // 时间复杂度：O(1)
 // 空间复杂度：O(1)
 // 返回 1: 越界。
-int static_linked_list_get(const static_linked_list* list, size_t index, void* elem);
+int StaticLinkedList_Get(const StaticLinkedList* list, size_t index, void* elem);
 
 // 向静态链表中插入元素。
 // list：静态链表。
@@ -58,7 +58,7 @@ int static_linked_list_get(const static_linked_list* list, size_t index, void* e
 // 时间复杂度：O(1)
 // 空间复杂度：O(n)
 // 返回 1: 越界。
-int static_linked_list_insert(static_linked_list* list, size_t index, const void* elem);
+int StaticLinkedList_Insert(StaticLinkedList* list, size_t index, const void* elem);
 
 // 删除静态链表中的元素。
 // list：静态链表。
@@ -66,7 +66,7 @@ int static_linked_list_insert(static_linked_list* list, size_t index, const void
 // 时间复杂度：O(1)
 // 空间复杂度：O(n)
 // 返回 1: 越界。
-int static_linked_list_del(static_linked_list* list, size_t index);
+int StaticLinkedList_Del(StaticLinkedList* list, size_t index);
 
 // 获取静态链表中的元素。
 // list：静态链表。
@@ -76,20 +76,20 @@ int static_linked_list_del(static_linked_list* list, size_t index);
 // 时间复杂度：O(n)
 // 空间复杂度：O(1)
 // 返回 1: 未找到。
-int static_linked_list_locate(const static_linked_list* list, list_elem_comparer cmp, const void* elem, size_t* index);
+int StaticLinkedList_Locate(const StaticLinkedList* list, ListElemComparer cmp, const void* elem, size_t* index);
 
 // 遍历静态链表。
 // list：静态链表。
 // visit：遍历函数。
 // 时间复杂度：O(n)
 // 空间复杂度：O(1)
-int static_linked_list_travel(const static_linked_list* list, list_elem_visitor visit);
+int StaticLinkedList_Travel(const StaticLinkedList* list, ListElemVisitor visit);
 
 // 清空静态链表。
 // list：静态链表。
 // 时间复杂度：O(1)
 // 空间复杂度：O(1)
-int static_linked_list_clear(static_linked_list* list);
+int StaticLinkedList_Clear(StaticLinkedList* list);
 
 // 取出静态链表中最右边的元素。
 // list：静态链表。
@@ -97,21 +97,21 @@ int static_linked_list_clear(static_linked_list* list);
 // 时间复杂度：O(1)
 // 空间复杂度：O(n)
 // 返回 1: 越界。
-int static_linked_list_rpop(static_linked_list* list, void* elem);
+int StaticLinkedList_RPop(StaticLinkedList* list, void* elem);
 
 // 向静态链表中的最左边添加元素。
 // list：静态链表。
 // elem：被添加的元素。
 // 时间复杂度：O(1)
 // 空间复杂度：O(n)
-int static_linked_list_lpush(static_linked_list* list, const void* elem);
+int StaticLinkedList_LPush(StaticLinkedList* list, const void* elem);
 
 // 向静态链表最右边添加元素。
 // list：静态链表。
 // elem：被添加的元素。
 // 时间复杂度：O(1)
 // 空间复杂度：O(n)
-int static_linked_list_rpush(static_linked_list* list, const void* elem);
+int StaticLinkedList_RPush(StaticLinkedList* list, const void* elem);
 
 // 获取静态链表中最左边的元素。
 // list：静态链表。
@@ -119,7 +119,7 @@ int static_linked_list_rpush(static_linked_list* list, const void* elem);
 // 时间复杂度：O(1)
 // 空间复杂度：O(n)
 // 返回 1: 越界。
-int static_linked_list_lpop(static_linked_list* list, void* elem);
+int StaticLinkedList_LPop(StaticLinkedList* list, void* elem);
 
 // 设置静态链表中的元素。
 // list：静态链表。
@@ -128,7 +128,7 @@ int static_linked_list_lpop(static_linked_list* list, void* elem);
 // 时间复杂度：O(1)
 // 空间复杂度：O(1)
 // 返回 1: 越界。
-int static_linked_list_set(static_linked_list* list, size_t index, const void* elem);
+int StaticLinkedList_Set(StaticLinkedList* list, size_t index, const void* elem);
 
 // 获取静态链表中的元素然后删除之。
 // list：静态链表。
@@ -137,7 +137,7 @@ int static_linked_list_set(static_linked_list* list, size_t index, const void* e
 // 时间复杂度：O(1)
 // 空间复杂度：O(n)
 // 返回 1: 越界。
-int static_linked_list_getdel(static_linked_list* list, size_t index, void* elem);
+int StaticLinkedList_GetDel(StaticLinkedList* list, size_t index, void* elem);
 
 // 获取静态链表中的元素然后设置新值。
 // list：静态链表。
@@ -146,7 +146,7 @@ int static_linked_list_getdel(static_linked_list* list, size_t index, void* elem
 // 时间复杂度：O(1)
 // 空间复杂度：O(1)
 // 返回 1: 越界。
-int static_linked_list_getset(static_linked_list* list, size_t index, void* elem);
+int StaticLinkedList_GetSet(StaticLinkedList* list, size_t index, void* elem);
 
 // 打印静态链表中的元素。
 // list：静态链表。
@@ -155,7 +155,6 @@ int static_linked_list_getset(static_linked_list* list, size_t index, void* elem
 // sizeOfElem：每个元素转字符串表示占用的最大字节数。
 // 时间复杂度：O(n)
 // 空间复杂度：O(n)
-int static_linked_list_fprint(const static_linked_list* list, FILE* f, list_elem_to_string str,
-                              size_t size_of_elem);
+int StaticLinkedList_FPrint(const StaticLinkedList* list, FILE* f, ListElemToString str, size_t sizeOfElem);
 
 #endif

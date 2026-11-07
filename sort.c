@@ -2,7 +2,7 @@
 
 #include "sort.h"
 
-static void merge_swap(int arr[], const int left, const int mid, const int right, int tmp[]) {
+static void mergeSwap(int arr[], const int left, const int mid, const int right, int tmp[]) {
     int i = left;
     int j = mid + 1;
     int t = 0;
@@ -11,8 +11,7 @@ static void merge_swap(int arr[], const int left, const int mid, const int right
             tmp[t] = arr[i];
             t++;
             i++;
-        }
-        else {
+        } else {
             tmp[t] = arr[j];
             t++;
             j++;
@@ -37,12 +36,12 @@ static void merge_swap(int arr[], const int left, const int mid, const int right
     }
 }
 
-static void do_merge(int arr[], const int left, const int right, int tmp[]) {
+static void doMerge(int arr[], const int left, const int right, int tmp[]) {
     if (left < right) {
         const int mid = (left + right) / 2;
-        do_merge(arr, left, mid, tmp);
-        do_merge(arr, mid + 1, right, tmp);
-        merge_swap(arr, left, mid, right, tmp);
+        doMerge(arr, left, mid, tmp);
+        doMerge(arr, mid + 1, right, tmp);
+        mergeSwap(arr, left, mid, right, tmp);
     }
 }
 
@@ -52,32 +51,25 @@ static void quick(int arr[], const int left, const int right) {
     const int pivot = arr[(left + right) / 2];
     int elem;
     while (l < r) {
-        while (arr[l] < pivot)
-            l++;
-        while (arr[r] > pivot)
-            r--;
-        if (l >= r)
-            break;
+        while (arr[l] < pivot) l++;
+        while (arr[r] > pivot) r--;
+        if (l >= r) break;
 
         elem = arr[l];
         arr[l] = arr[r];
         arr[r] = elem;
-        if (arr[l] == pivot)
-            r--;
-        if (arr[r] == pivot)
-            l++;
+        if (arr[l] == pivot) r--;
+        if (arr[r] == pivot) l++;
     }
     if (l == r) {
         l++;
         r--;
     }
-    if (left < r)
-        quick(arr, left, r);
-    if (right > l)
-        quick(arr, l, right);
+    if (left < r) quick(arr, left, r);
+    if (right > l) quick(arr, l, right);
 }
 
-void sort_bubble(const int length, int arr[]) {
+void Sort_Bubble(const int length, int arr[]) {
     _Bool flag = 1;
     for (int i = 0; i < length; i++) {
         for (int j = 0; j < length - i - 1; j++) {
@@ -93,7 +85,7 @@ void sort_bubble(const int length, int arr[]) {
     }
 }
 
-void sort_select(const int length, int arr[]) {
+void Sort_Select(const int length, int arr[]) {
     for (int i = 0; i < length; i++) {
         int min = arr[i];
         int index = i;
@@ -111,7 +103,7 @@ void sort_select(const int length, int arr[]) {
     }
 }
 
-void sort_insert(const int length, int arr[]) {
+void Sort_Insert(const int length, int arr[]) {
     for (int i = 1; i < length; i++) {
         const int elem = arr[i];
         int index = i - 1;
@@ -123,7 +115,7 @@ void sort_insert(const int length, int arr[]) {
     }
 }
 
-void sort_shell(const int length, int arr[]) {
+void Sort_Shell(const int length, int arr[]) {
     for (int gap = length / 2; gap > 0; gap = gap / 2) {
         for (int i = gap; i < length; i++) {
             int index = i;
@@ -137,25 +129,21 @@ void sort_shell(const int length, int arr[]) {
     }
 }
 
-void sort_quick(const int length, int arr[]) {
-    quick(arr, 0, length - 1);
-}
+void Sort_Quick(const int length, int arr[]) { quick(arr, 0, length - 1); }
 
-void sort_merge(const int length, int arr[]) {
+void Sort_Merge(const int length, int arr[]) {
     int* tmp = calloc(length, sizeof(int));
-    do_merge(arr, 0, length - 1, tmp);
+    doMerge(arr, 0, length - 1, tmp);
 }
 
-void sort_radix(const int length, int arr[]) {
+void Sort_Radix(const int length, int arr[]) {
     int max = 0;
     for (int i = 0; i < length; i++) {
-        if (arr[i] > max)
-            max = arr[i];
+        if (arr[i] > max) max = arr[i];
     }
 
     int digit = 1;
-    for (int n = 10; max > n; n *= 10)
-        digit++;
+    for (int n = 10; max > n; n *= 10) digit++;
 
     int bucket[10][length];
     int bucketCount[10];
