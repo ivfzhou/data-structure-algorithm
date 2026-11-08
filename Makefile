@@ -27,7 +27,7 @@ STATIC_RELEASE_OBJECTS_DIRECTORIES := $(sort $(dir $(STATIC_RELEASE_OBJECTS)))
 SHARED_DEBUG_OBJECTS_DIRECTORIES := $(sort $(dir $(SHARED_DEBUG_OBJECTS)))
 SHARED_RELEASE_OBJECTS_DIRECTORIES := $(sort $(dir $(SHARED_RELEASE_OBJECTS)))
 
-.PHONY: all clean build test install $(TEST_TARGETS)
+.PHONY: all clean build test install uninstall $(TEST_TARGETS)
 
 all: clean build test install
 
@@ -92,8 +92,12 @@ clean:
 	@echo 'clean done'
 
 install: build
-	@mkdir -p $(PREFIX)/lib/
-	@cp -f build/libdata-structure-algorithm.so build/libdata-structure-algorithm.a $(PREFIX)/lib/
-	@mkdir -p  $(PREFIX)/include/
-	@cp -f $(HEADERS) $(PREFIX)/include/
+	@mkdir -p $(PREFIX)/lib/ivfzhou/data-structure-algorithm/
+	@cp -f build/libdata-structure-algorithm.so build/libdata-structure-algorithm.a $(PREFIX)/lib/ivfzhou/data-structure-algorithm/
+	@mkdir -p  $(PREFIX)/include/ivfzhou/data-structure-algorithm/
+	@cp -f $(HEADERS) $(PREFIX)/include/ivfzhou/data-structure-algorithm/
 	@echo 'install done'
+
+uninstall:
+	@rm -rf $(PREFIX)/lib/ivfzhou/data-structure-algorithm/
+	@rm -rf $(PREFIX)/include/ivfzhou/data-structure-algorithm/
