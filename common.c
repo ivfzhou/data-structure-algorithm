@@ -10,25 +10,12 @@
  * See the Mulan PSL v2 for more details.
  */
 
-#include <stdint.h>
-#include <stdlib.h>
+#include <stddef.h>
 
 #include "common.h"
 
-void* PointerAdd(void* p, const size_t delta) {
-    uintptr_t ptr = (uintptr_t)p;
-    ptr += delta;
-    return (void*)ptr;
-}
+extern inline void* PointerAdd(const void* p, size_t delta);
 
-void* PointerMinus(void* p, size_t delta) {
-    uintptr_t ptr = (uintptr_t)p;
-    ptr -= delta;
-    return (void*)ptr;
-}
+extern inline void* PointerMinus(const void* p, size_t delta);
 
-unsigned long long PointerDiff(void* p1, void* p2) {
-    const uintptr_t ptr = (uintptr_t)p1;
-    const uintptr_t ptr2 = (uintptr_t)p2;
-    return ptr - ptr2;
-}
+extern inline unsigned long long PointerDiff(const void* p1, const void* p2);

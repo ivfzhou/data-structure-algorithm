@@ -10,6 +10,11 @@
  * See the Mulan PSL v2 for more details.
  */
 
+/**
+ * @file array_list.h
+ * @brief 顺序线性表接口声明。
+ */
+
 #ifndef CN_IVFZHOU_DATA_STRUCTURE_ALGORITHM_ARRAY_LIST_H
 #define CN_IVFZHOU_DATA_STRUCTURE_ALGORITHM_ARRAY_LIST_H
 
@@ -17,37 +22,53 @@
 
 #include "list.h"
 
-// 顺序线性表。
+/**
+ * @brief 顺序线性表类型定义。
+ */
 typedef struct {
-    size_t length, capacity, elemSize;
-    void* elems;
+    size_t length; ///< 元素的个数。由内部 API 使用，请勿直接使用。
+    size_t capacity; ///< 线性表容量大小。由内部 API 使用，请勿直接使用。
+    size_t elemSize; ///< 单个元素的字节大小。由内部 API 使用，请勿直接使用。
+    void* elems; ///< 第一个元素的指针。由内部 API 使用，请勿直接使用。
 } ArrayList;
 
-// 新建顺序表。
-// elemSize：每个元素占用的字节大小。
-// 时间复杂度：O(1)
-// 空间复杂度：O(1)
+/**
+ * @brief 新建顺序表。
+ * @details 时间复杂度 O(1)，空间复杂度 O(1)。
+ * @param[in] elemSize 单个元素的字节大小。
+ * @return 返回顺序线性表类型指针；当不再需要时，需要调用 ArrayList_Free 回收内存。
+ * @retval NULL elemSize 为 0 或发生分配内存失败等错误。
+ */
 ArrayList* ArrayList_Alloc(size_t elemSize);
 
-// 销毁顺序表。
-// list：顺序表。
-// 时间复杂度：O(1)
-// 空间复杂度：O(1)
+/**
+ * @berif 销毁顺序表。
+ * @details 时间复杂度 O(1)，空间复杂度 O(1)。
+ * @param[in] list 顺序线性表类型指针。
+ */
 void ArrayList_Free(ArrayList* list);
 
-// 获取顺序表中元素个数。
-// list：顺序表。
-// 时间复杂度：O(1)
-// 空间复杂度：O(1)
+/**
+ * @berif 获取顺序表中元素个数。
+ * @details 时间复杂度 O(1)，空间复杂度 O(1)。
+ * @param[in] list 顺序线性表类型指针。
+ * @return 顺序表元素个数。
+ */
 size_t ArrayList_Len(const ArrayList* list);
 
-// 获取顺序表元素。
-// list：顺序表。
-// index：元素所在位置。
-// elem：元素值塞进 elem 中。
-// 时间复杂度：O(1)
-// 空间复杂度：O(1)
-// 返回 1: 越界。
+/**
+ * @berif 获取顺序表元素。
+ * @details 时间复杂度 O(1)，空间复杂度 O(1)。
+ * @param[in] list 顺序线性表类型指针。
+ * @param[in] index 元素所在位置。0 代表第一个元素，一次类推。
+ * @param[out] elem 填充元素到指针下。
+ * @return 操作结果，非零表示失败。
+ * @retval 0 操作成功。
+ * @retval 1 顺序线性表类型指针 list 为 NULL。
+ * @retval 2 元素 elem 为 NULL。
+ * @retval 3 index 越界。
+ * @retval 4 elem 地址与 list 元素地址存在重叠。
+ */
 int ArrayList_Get(const ArrayList* list, size_t index, void* elem);
 
 // 向顺序表中插入元素。

@@ -81,8 +81,22 @@ static int deallocAndPop(ArrayList* list, const size_t index, void* elem) {
     return 0;
 }
 
+// 检查 elem 与 list 是否存在内存重叠。
+inline _Bool checkMemoryOverlap(const ArrayList* list, const void* elem) {
+    const uintptr_t elemPtr = (uintptr_t)elem;
+    const uintptr_t startPtr = (uintptr_t)list->elems;
+    const size_t elemSize = list->capacity * list->elemSize;
+    // 加法溢出，保守视为重叠。
+    if (elemSize > UINTPTR_MAX - startPtr) return 1;
+
+    const uintptr_t endPtr = startPtr + (uintptr_t)elemSize;
+    return elemPtr >= startPtr && elemPtr < endPtr;
+}
+
 ArrayList* ArrayList_Alloc(const size_t elemSize) {
+    if (elemSize <= 0) return NULL;
     ArrayList* list = malloc(sizeof(ArrayList));
+    if (!list) return NULL;
     list->elemSize = elemSize;
     list->length = list->capacity = 0;
     list->elems = NULL;
@@ -90,6 +104,7 @@ ArrayList* ArrayList_Alloc(const size_t elemSize) {
 }
 
 void ArrayList_Free(ArrayList* list) {
+    if (!list) return;
     free(list->elems);
     list->length = list->capacity = 0;
     list->elemSize = 0;
@@ -100,7 +115,10 @@ void ArrayList_Free(ArrayList* list) {
 size_t ArrayList_Len(const ArrayList* list) { return list->length; }
 
 int ArrayList_Get(const ArrayList* list, const size_t index, void* elem) {
-    if (index >= list->length) return 1;
+    if (!list) return 1;
+    if (!elem) return 2;
+    if (index >= list->length) return 3;
+    if (checkMemoryOverlap(list, elem)) return 4;
     memcpy(elem, PointerAdd(list->elems, index * list->elemSize), list->elemSize);
     return 0;
 }
