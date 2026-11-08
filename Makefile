@@ -27,9 +27,9 @@ STATIC_RELEASE_OBJECTS_DIRECTORIES := $(sort $(dir $(STATIC_RELEASE_OBJECTS)))
 SHARED_DEBUG_OBJECTS_DIRECTORIES := $(sort $(dir $(SHARED_DEBUG_OBJECTS)))
 SHARED_RELEASE_OBJECTS_DIRECTORIES := $(sort $(dir $(SHARED_RELEASE_OBJECTS)))
 
-.PHONY: all clean build test install uninstall $(TEST_TARGETS)
+.PHONY: all clean build test install uninstall docs $(TEST_TARGETS)
 
-all: clean build test install
+all: clean build docs test install
 
 %/:
 	@mkdir -p $@
@@ -89,6 +89,7 @@ test: $(addprefix build/test/,$(TEST_TARGETS))
 
 clean:
 	@rm -rf build
+	@rm -rf docs
 	@echo 'clean done'
 
 install: build
@@ -101,3 +102,7 @@ install: build
 uninstall:
 	@rm -rf $(PREFIX)/lib/ivfzhou/data-structure-algorithm/
 	@rm -rf $(PREFIX)/include/ivfzhou/data-structure-algorithm/
+
+docs:
+	@doxygen ./Doxyfile
+	@echo docs done

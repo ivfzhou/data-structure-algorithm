@@ -56,24 +56,24 @@
 
 /**
  * @brief 判断无符号整型 T 强转成无符号整型 U 时，值域是否包含。
- * @params[in] T 被转的整型类型。
- * @params[in] U 转成的整型类型。
+ * @param[in] T 被转的整型类型。
+ * @param[in] U 转成的整型类型。
  * @return 若值域包含，返回真。
  */
 #define CHECK_TYPE_RANGE_FITNESS_U2U(T, U) (GET_TYPE_MAXIMAL(T) <= GET_TYPE_MAXIMAL(U))
 
 /**
  * @brief 判断无符号整型 T 强转成有符号整型 U 时，值域是否包含。只需比上界。
- * @params[in] T 被转的整型类型。
- * @params[in] U 转成的整型类型。
+ * @param[in] T 被转的整型类型。
+ * @param[in] U 转成的整型类型。
  * @return 若值域包含，返回真。
  */
 #define CHECK_TYPE_RANGE_FITNESS_U2S(T, U) (GET_TYPE_MAXIMAL(T) <= GET_TYPE_MAXIMAL(U))
 
 /**
  * @brief 判断有符号整型 T 强转成有符号整型 U 时，值域是否包含。
- * @params[in] T 被转的整型类型。
- * @params[in] U 转成的整型类型。
+ * @param[in] T 被转的整型类型。
+ * @param[in] U 转成的整型类型。
  * @return 若值域包含，返回真。
  */
 #define CHECK_TYPE_RANGE_FITNESS_S2S(T, U) \
@@ -82,16 +82,16 @@
 /* 4) 有符号 -> 无符号：有符号必然有负值，永远无法被无符号完全包含 */
 /**
  * @brief 判断有符号整型 T 强转成无符号整型 U 时，值域是否包含。有符号必然有负值，永远无法被无符号完全包含。
- * @params[in] T 被转的整型类型。
- * @params[in] U 转成的整型类型。
+ * @param[in] T 被转的整型类型。
+ * @param[in] U 转成的整型类型。
  * @return 恒返回假。
  */
 #define CHECK_TYPE_RANGE_FITNESS_S2U(T, U) 0
 
 /**
  * @brief 判断整型类型强转是否安全。
- * @params[in] T 被转的整型类型。
- * @params[in] U 转成的整型类型。
+ * @param[in] T 被转的整型类型。
+ * @param[in] U 转成的整型类型。
  */
 #define CHECK_TYPE_RANGE_FITNESS(T, U)                                                                         \
     (T_UNSIGNED(T) ? (T_UNSIGNED(U) ? CHECK_TYPE_RANGE_FITNESS_U2U(T, U) : CHECK_TYPE_RANGE_FITNESS_U2S(T, U)) \
@@ -100,35 +100,35 @@
 /* 编译期断言：不满足直接编译报错 */
 /**
  * @brief 编译器断言，判断整型类型强转是否安全。
- * @params[in] T 被转的整型类型。
- * @params[in] U 转成的整型类型。
+ * @param[in] T 被转的整型类型。
+ * @param[in] U 转成的整型类型。
  */
 #define STATIC_ASSERT_CAST_FITS(T, U) \
     _Static_assert(CHECK_TYPE_RANGE_FITNESS(T, U), "cast truncates value: " #T " -> " #U)
 
 /**
  * @brief 判断无符号整型 T 的数值 v 强转成无符号整型 U 时，是否仍等于原值 v。
- * @param[in] 整型 v 数值。
- * @param[in] 整型 v 的类型。
- * @param[in] 整型 v 被强转的类型。
+ * @param[in] v 整型 v 数值。
+ * @param[in] T 整型 v 的类型。
+ * @param[in] U 整型 v 被强转的类型。
  * @return 若强转后数字没变，返回真。
  */
 #define CHECK_CAST_CHANGE_U2U(v, T, U) ((T)(U)(v) == (T)(v))
 
 /**
  * @brief 判断无符号整型 T 的数值 v 强转成有符号整型 U 时，是否仍等于原值 v。
- * @param[in] 整型 v 数值。
- * @param[in] 整型 v 的类型。
- * @param[in] 整型 v 被强转的类型。
+ * @param[in] v 整型 v 数值。
+ * @param[in] T 整型 v 的类型。
+ * @param[in] U 整型 v 被强转的类型。
  * @return 若强转后数字没变，返回真。
  */
 #define CHECK_CAST_CHANGE_U2S(v, T, U) ((T)(U)(v) == (T)(v))
 
 /**
  * @brief 判断有符号整型 T 的数值 v 强转成有符号整型 U 时，是否仍等于原值 v。
- * @param[in] 整型 v 数值。
- * @param[in] 整型 v 的类型。
- * @param[in] 整型 v 被强转的类型。
+ * @param[in] v 整型 v 数值。
+ * @param[in] T 整型 v 的类型。
+ * @param[in] U 整型 v 被强转的类型。
  * @return 若强转后数字没变，返回真。
  */
 #define CHECK_CAST_CHANGE_S2S(v, T, U) ((T)(U)(v) == (T)(v))
@@ -136,18 +136,18 @@
 /**
  * @brief 判断有符号整型 T 的数值 v 强转成有符号整型 U 时，是否仍等于原值 v。
  * @details 必须额外加 (v) >= 0 判断：负值转到无符号再转回，在补码平台上位模式不变、会误判为没变。
- * @param[in] 整型 v 数值。
- * @param[in] 整型 v 的类型。
- * @param[in] 整型 v 被强转的类型。
+ * @param[in] v 整型 v 数值。
+ * @param[in] T 整型 v 的类型。
+ * @param[in] U 整型 v 被强转的类型。
  * @return 若强转后数字没变，返回真。
  */
 #define CHECK_CAST_CHANGE_S2U(v, T, U) ((v) >= 0 && (T)(U)(v) == (T)(v))
 
 /**
  * @brief 运行期，判断整型数字强转后是否改变原值。
- * @param[in] 整型 v 数值。
- * @param[in] 整型 v 的类型。
- * @param[in] 整型 v 被强转的类型。
+ * @param[in] v 整型 v 数值。
+ * @param[in] T 整型 v 的类型。
+ * @param[in] U 整型 v 被强转的类型。
  * @return 若强转后数字没变，返回真。
  */
 #define CHECK_CAST_CHANGE(v, T, U)                                                                                 \

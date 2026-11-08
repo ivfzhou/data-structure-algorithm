@@ -42,14 +42,14 @@ typedef struct {
 ArrayList* ArrayList_Alloc(size_t elemSize);
 
 /**
- * @berif 销毁顺序表。
+ * @brief 销毁顺序表。
  * @details 时间复杂度 O(1)，空间复杂度 O(1)。
  * @param[in] list 顺序线性表类型指针。
  */
 void ArrayList_Free(ArrayList* list);
 
 /**
- * @berif 获取顺序表中元素个数。
+ * @brief 获取顺序表中元素个数。
  * @details 时间复杂度 O(1)，空间复杂度 O(1)。
  * @param[in] list 顺序线性表类型指针。
  * @return 顺序表元素个数。
@@ -57,7 +57,7 @@ void ArrayList_Free(ArrayList* list);
 size_t ArrayList_Len(const ArrayList* list);
 
 /**
- * @berif 获取顺序表元素。
+ * @brief 获取顺序表元素。
  * @details 时间复杂度 O(1)，空间复杂度 O(1)。
  * @param[in] list 顺序线性表类型指针。
  * @param[in] index 元素所在位置。0 代表第一个元素，一次类推。

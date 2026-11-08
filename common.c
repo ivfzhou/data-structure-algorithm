@@ -18,4 +18,4 @@ extern inline void* PointerAdd(const void* p, size_t delta);
 
 extern inline void* PointerMinus(const void* p, size_t delta);
 
-extern inline unsigned long long PointerDiff(const void* p1, const void* p2);
+extern inline ptrdiff_t PointerDiff(const void* p1, const void* p2);
