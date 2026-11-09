@@ -27,7 +27,7 @@ STATIC_RELEASE_OBJECTS_DIRECTORIES := $(sort $(dir $(STATIC_RELEASE_OBJECTS)))
 SHARED_DEBUG_OBJECTS_DIRECTORIES := $(sort $(dir $(SHARED_DEBUG_OBJECTS)))
 SHARED_RELEASE_OBJECTS_DIRECTORIES := $(sort $(dir $(SHARED_RELEASE_OBJECTS)))
 
-.PHONY: all clean build test install uninstall docs $(TEST_TARGETS)
+.PHONY: all clean build test install uninstall docs format-code $(TEST_TARGETS)
 
 all: clean build docs test install
 
@@ -39,16 +39,16 @@ build/objects/static-debug/%.o: %.c | $(STATIC_DEBUG_OBJECTS_DIRECTORIES)
 	       -Wno-unused-function -Wno-unused-local-typedefs -Wno-unused-parameter -O0 -g3 -c -o $@ $<
 
 build/objects/static-release/%.o: %.c | $(STATIC_RELEASE_OBJECTS_DIRECTORIES)
-	@$(CC) -std=c17 -finput-charset=UTF-8 -fexec-charset=UTF-8 -Wpedantic -Winline -Wall -Wextra -Wno-unused-variable \
-	       -Wno-unused-function -Wno-unused-local-typedefs -Wno-unused-parameter -O3 -flto -fPIC -c -o $@ $<
+	@$(CC) -std=c17 -finput-charset=UTF-8 -fexec-charset=UTF-8 -Wpedantic -Winline -Wall -Wextra -Wno-type-limits \
+	       -O3 -flto -fPIC -c -o $@ $<
 
 build/objects/shared-debug/%.o: %.c | $(SHARED_DEBUG_OBJECTS_DIRECTORIES)
 	@$(CC) -std=c17 -finput-charset=UTF-8 -fexec-charset=UTF-8 -Wpedantic -Winline -Wall -Wextra -Wno-unused-variable \
 	       -Wno-unused-function -Wno-unused-local-typedefs -Wno-unused-parameter -O0 -g3 -c -o $@ $<
 
 build/objects/shared-release/%.o: %.c | $(SHARED_RELEASE_OBJECTS_DIRECTORIES)
-	@$(CC) -std=c17 -finput-charset=UTF-8 -fexec-charset=UTF-8 -Wpedantic -Winline -Wall -Wextra -Wno-unused-variable \
-	       -Wno-unused-function -Wno-unused-local-typedefs -Wno-unused-parameter -O3 -DNDEBUG -flto -fPIC -c -o $@ $<
+	@$(CC) -std=c17 -finput-charset=UTF-8 -fexec-charset=UTF-8 -Wpedantic -Winline -Wall -Wextra -Wno-type-limits \
+	       -O3 -DNDEBUG -flto -fPIC -c -o $@ $<
 
 build/libdata-structure-algorithm-static-debug.a: $(STATIC_DEBUG_OBJECTS)
 	@$(AR) rcs $@ $^
@@ -106,3 +106,7 @@ uninstall:
 docs:
 	@doxygen ./Doxyfile
 	@echo docs done
+
+format-code:
+	@clang-format -i *.h *.c
+	@echo 'format code done'

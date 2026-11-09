@@ -14,13 +14,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "common.h"
 #include "stack.h"
-
-extern void* PointerAdd(void* p, size_t delta);
-
-extern void* PointerMinus(void* p, size_t delta);
-
-extern unsigned long long PointerDiff(void* p1, void* p2);
 
 void Stack_Push(Stack* s, const void* elem) {
     if (Stack_IsFull(s)) raise(SIGABRT);
@@ -55,4 +50,12 @@ int Stack_PeekTop(const Stack* s, void* elem) {
     return 0;
 }
 
-_Bool Stack_IsFull(const Stack* s) { return PointerDiff(s->top, s->bottom) >= s->length; }
+_Bool Stack_IsFull(const Stack* s) {
+    ptrdiff_t delta = PointerDiff(s->top, s->bottom);
+    if (delta < 0) delta = -delta;
+
+    // 强转溢出，视为栈已满。
+    if (!CHECK_CAST_CHANGE(delta, ptrdiff_t, size_t)) return 1;
+
+    return (size_t)delta >= s->length;
+}

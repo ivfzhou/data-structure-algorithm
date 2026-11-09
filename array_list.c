@@ -82,12 +82,16 @@ static int deallocAndPop(ArrayList* list, const size_t index, void* elem) {
 }
 
 // 检查 elem 与 list 是否存在内存重叠。
-inline _Bool checkMemoryOverlap(const ArrayList* list, const void* elem) {
+static _Bool checkMemoryOverlap(const ArrayList* list, const void* elem) {
     const uintptr_t elemPtr = (uintptr_t)elem;
     const uintptr_t startPtr = (uintptr_t)list->elems;
     const size_t elemSize = list->capacity * list->elemSize;
+
+    // 类型强转溢出，保守视为重叠。
+    if (!CHECK_CAST_CHANGE(elemSize, size_t, uintptr_t)) return 1;
+
     // 加法溢出，保守视为重叠。
-    if (elemSize > UINTPTR_MAX - startPtr) return 1;
+    if (CHECK_ADD_OVERFLOW(startPtr, (uintptr_t)elemSize)) return 1;
 
     const uintptr_t endPtr = startPtr + (uintptr_t)elemSize;
     return elemPtr >= startPtr && elemPtr < endPtr;

@@ -10,20 +10,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
-/**
- * @brief 判断类型 T 是否为无符号类型。常量表达式。
- * @param[in] T 整数类型。
- * @retval 1 T 是无符号。
- * @retval 0 T 是有符号。
- */
-#define IS_UNSIGNED_TYPE(T) ((T)(-1) > 0)
+#define is_unsigned_type(T) ((T)(-1) > 0)
 
-/**
- * @brief 类型 T 的最小值，以 intmax_t 表示；无符号类型最小值为 0。
- * @param[in] T 整数类型。
- * @return intmax_t 类型的数值。
- */
-#define GET_TYPE_MINIMAL(T)               \
+#define get_type_minimal(T)               \
     _Generic((T)0,                        \
         _Bool: (intmax_t)0,               \
         char: (intmax_t)CHAR_MIN,         \
@@ -34,12 +23,7 @@
         long long: (intmax_t)LLONG_MIN,   \
         default: (intmax_t)0)
 
-/**
- * @brief 类型 T 的最大值，以 uintmax_t 表示。
- * @param T 整数类型。
- * @return uintmax_t 类型的数值。
- */
-#define GET_TYPE_MAXIMAL(T)                        \
+#define get_type_maximal(T)                        \
     _Generic((T)0,                                 \
         _Bool: (uintmax_t)1,                       \
         char: (uintmax_t)CHAR_MAX,                 \
@@ -54,94 +38,56 @@
         long: (uintmax_t)LONG_MAX,                 \
         long long: (uintmax_t)LLONG_MAX)
 
-/**
- * @brief 判断无符号整型 T 强转成无符号整型 U 时，值域是否包含。
- * @param[in] T 被转的整型类型。
- * @param[in] U 转成的整型类型。
- * @return 若值域包含，返回真。
- */
-#define CHECK_TYPE_RANGE_FITNESS_U2U(T, U) (GET_TYPE_MAXIMAL(T) <= GET_TYPE_MAXIMAL(U))
+#define check_type_range_fitness_u2u(T, U) (get_type_maximal(T) <= get_type_maximal(U))
 
-/**
- * @brief 判断无符号整型 T 强转成有符号整型 U 时，值域是否包含。只需比上界。
- * @param[in] T 被转的整型类型。
- * @param[in] U 转成的整型类型。
- * @return 若值域包含，返回真。
- */
-#define CHECK_TYPE_RANGE_FITNESS_U2S(T, U) (GET_TYPE_MAXIMAL(T) <= GET_TYPE_MAXIMAL(U))
+#define check_type_range_fitness_u2s(T, U) (get_type_maximal(T) <= get_type_maximal(U))
 
-/**
- * @brief 判断有符号整型 T 强转成有符号整型 U 时，值域是否包含。
- * @param[in] T 被转的整型类型。
- * @param[in] U 转成的整型类型。
- * @return 若值域包含，返回真。
- */
-#define CHECK_TYPE_RANGE_FITNESS_S2S(T, U) \
-    (GET_TYPE_MINIMAL(T) >= GET_TYPE_MINIMAL(U) && GET_TYPE_MAXIMAL(T) <= GET_TYPE_MAXIMAL(U))
+#define check_type_range_fitness_s2s(T, U) \
+    (get_type_minimal(T) >= get_type_minimal(U) && get_type_maximal(T) <= get_type_maximal(U))
 
-/* 4) 有符号 -> 无符号：有符号必然有负值，永远无法被无符号完全包含 */
-/**
- * @brief 判断有符号整型 T 强转成无符号整型 U 时，值域是否包含。有符号必然有负值，永远无法被无符号完全包含。
- * @param[in] T 被转的整型类型。
- * @param[in] U 转成的整型类型。
- * @return 恒返回假。
- */
-#define CHECK_TYPE_RANGE_FITNESS_S2U(T, U) 0
+#define check_type_range_fitness_s2u(T, U) 0
 
-/**
- * @brief 判断整型类型强转是否安全。
- * @param[in] T 被转的整型类型。
- * @param[in] U 转成的整型类型。
- */
-#define CHECK_TYPE_RANGE_FITNESS(T, U)                                                                         \
-    (T_UNSIGNED(T) ? (T_UNSIGNED(U) ? CHECK_TYPE_RANGE_FITNESS_U2U(T, U) : CHECK_TYPE_RANGE_FITNESS_U2S(T, U)) \
-                   : (T_UNSIGNED(U) ? CHECK_TYPE_RANGE_FITNESS_S2U(T, U) : CHECK_TYPE_RANGE_FITNESS_S2S(T, U)))
+#define check_type_range_fitness(T, U)                                                                         \
+    (T_UNSIGNED(T) ? (T_UNSIGNED(U) ? check_type_range_fitness_u2u(T, U) : check_type_range_fitness_u2s(T, U)) \
+                   : (T_UNSIGNED(U) ? check_type_range_fitness_s2u(T, U) : check_type_range_fitness_s2s(T, U)))
 
-/* 编译期断言：不满足直接编译报错 */
+#define check_cast_change_u2u(v, T, U) ((T)(U)(v) == (T)(v))
+
+#define check_cast_change_u2s(v, T, U) ((T)(U)(v) == (T)(v))
+
+#define check_cast_change_s2s(v, T, U) ((T)(U)(v) == (T)(v))
+
+#define check_cast_change_s2u(v, T, U) ((v) >= 0 && (T)(U)(v) == (T)(v))
+
+#define add_overflow_u(a, b, T) ((a) > (T)get_type_maximal(T) - (b))
+
+#define subtract_overflow_u(a, b, T) ((a) < (b))
+
+#define multiply_overflow_u(a, b, T) ((a) != 0 && (b) > (T)get_type_maximal(T) / (a))
+
+#define divide_overflow_u(a, b, T) ((b) == 0)
+
+#define add_overflow_s(a, b, T) \
+    (((b) > 0 && (a) > (T)get_type_maximal(T) - (b)) || ((b) < 0 && (a) < (T)get_type_minimal(T) - (b)))
+
+#define subtract_overflow_s(a, b, T) \
+    (((b) < 0 && (a) > (T)get_type_maximal(T) + (b)) || ((b) > 0 && (a) < (T)get_type_minimal(T) + (b)))
+
+#define multiply_overflow_s(a, b, T)                               \
+    (((a) > 0 && (b) > 0 && (a) > (T)get_type_maximal(T) / (b))    \
+     || ((a) > 0 && (b) < 0 && (b) < (T)get_type_minimal(T) / (a)) \
+     || ((a) < 0 && (b) > 0 && (a) < (T)get_type_minimal(T) / (b)) \
+     || ((a) < 0 && (b) < 0 && (a) < (T)get_type_maximal(T) / (b)))
+
+#define divide_overflow_s(a, b, T) ((b) == 0 || ((a) == (T)get_type_minimal(T) && (b) == (T) - 1))
+
 /**
  * @brief 编译器断言，判断整型类型强转是否安全。
  * @param[in] T 被转的整型类型。
  * @param[in] U 转成的整型类型。
  */
 #define STATIC_ASSERT_CAST_FITS(T, U) \
-    _Static_assert(CHECK_TYPE_RANGE_FITNESS(T, U), "cast truncates value: " #T " -> " #U)
-
-/**
- * @brief 判断无符号整型 T 的数值 v 强转成无符号整型 U 时，是否仍等于原值 v。
- * @param[in] v 整型 v 数值。
- * @param[in] T 整型 v 的类型。
- * @param[in] U 整型 v 被强转的类型。
- * @return 若强转后数字没变，返回真。
- */
-#define CHECK_CAST_CHANGE_U2U(v, T, U) ((T)(U)(v) == (T)(v))
-
-/**
- * @brief 判断无符号整型 T 的数值 v 强转成有符号整型 U 时，是否仍等于原值 v。
- * @param[in] v 整型 v 数值。
- * @param[in] T 整型 v 的类型。
- * @param[in] U 整型 v 被强转的类型。
- * @return 若强转后数字没变，返回真。
- */
-#define CHECK_CAST_CHANGE_U2S(v, T, U) ((T)(U)(v) == (T)(v))
-
-/**
- * @brief 判断有符号整型 T 的数值 v 强转成有符号整型 U 时，是否仍等于原值 v。
- * @param[in] v 整型 v 数值。
- * @param[in] T 整型 v 的类型。
- * @param[in] U 整型 v 被强转的类型。
- * @return 若强转后数字没变，返回真。
- */
-#define CHECK_CAST_CHANGE_S2S(v, T, U) ((T)(U)(v) == (T)(v))
-
-/**
- * @brief 判断有符号整型 T 的数值 v 强转成有符号整型 U 时，是否仍等于原值 v。
- * @details 必须额外加 (v) >= 0 判断：负值转到无符号再转回，在补码平台上位模式不变、会误判为没变。
- * @param[in] v 整型 v 数值。
- * @param[in] T 整型 v 的类型。
- * @param[in] U 整型 v 被强转的类型。
- * @return 若强转后数字没变，返回真。
- */
-#define CHECK_CAST_CHANGE_S2U(v, T, U) ((v) >= 0 && (T)(U)(v) == (T)(v))
+    _Static_assert(check_type_range_fitness(T, U), "cast truncates value: " #T " -> " #U)
 
 /**
  * @brief 运行期，判断整型数字强转后是否改变原值。
@@ -151,86 +97,8 @@
  * @return 若强转后数字没变，返回真。
  */
 #define CHECK_CAST_CHANGE(v, T, U)                                                                                 \
-    (IS_UNSIGNED_TYPE(T) ? (IS_UNSIGNED_TYPE(U) ? CHECK_CAST_CHANGE_U2U(v, T, U) : CHECK_CAST_CHANGE_U2S(v, T, U)) \
-                         : (IS_UNSIGNED_TYPE(U) ? CHECK_CAST_CHANGE_S2U(v, T, U) : CHECK_CAST_CHANGE_S2S(v, T, U)))
-
-/**
- * @brief 判断无符号数加法 a + b 是否会溢出。
- * @param[in] a 被加数。
- * @param[in] b 加数。
- * @param[in] T 整数类型。
- * @return 1 表示溢出，0 表示安全。
- */
-#define ADD_OVERFLOW_U(a, b, T) ((a) > (T)GET_TYPE_MAXIMAL(T) - (b))
-
-/**
- * @brief 判断无符号数减法 a - b 是否会溢出。
- * @param[in] a 被减数。
- * @param[in] b 减数。
- * @param[in] T 整数类型。
- * @return 1 表示溢出，0 表示安全。
- */
-#define SUBTRACT_OVERFLOW_U(a, b, T) ((a) < (b))
-
-/**
- * @brief 判断无符号数乘法 a * b 是否会溢出。
- * @param[in] a 被乘数。
- * @param[in] b 乘数。
- * @param[in] T 整数类型。
- * @return 1 表示溢出，0 表示安全。
- */
-#define MULTIPLY_OVERFLOW_U(a, b, T) ((a) != 0 && (b) > (T)GET_TYPE_MAXIMAL(T) / (a))
-
-/**
- * @brief 判断无符号数除法 a / b 是否会溢出（含除数为 0）。
- * @param[in] a 被除数。
- * @param[in] b 除数。
- * @param[in] T 整数类型。
- * @return 1 表示溢出或除数为 0，0 表示安全。
- */
-#define DIVIDE_OVERFLOW_U(a, b, T) ((b) == 0)
-
-/**
- * @brief 判断有符号数加法 a + b 是否会溢出。
- * @param[in] a 被加数。
- * @param[in] b 加数。
- * @param[in] T 整数类型。
- * @return 1 表示溢出，0 表示安全。
- */
-#define ADD_OVERFLOW_S(a, b, T) \
-    (((b) > 0 && (a) > (T)GET_TYPE_MAXIMAL(T) - (b)) || ((b) < 0 && (a) < (T)GET_TYPE_MINIMAL(T) - (b)))
-
-/**
- * @brief 判断有符号数减法 a - b 是否会溢出。
- * @param[in] a 被减数。
- * @param[in] b 减数。
- * @param[in] T 整数类型。
- * @return 1 表示溢出，0 表示安全。
- */
-#define SUBTRACT_OVERFLOW_S(a, b, T) \
-    (((b) < 0 && (a) > (T)GET_TYPE_MAXIMAL(T) + (b)) || ((b) > 0 && (a) < (T)GET_TYPE_MINIMAL(T) + (b)))
-
-/**
- * @brief 判断有符号数乘法 a * b 是否会溢出。
- * @param[in] a 被乘数。
- * @param[in] b 乘数。
- * @param[in] T 整数类型。
- * @return 1 表示溢出，0 表示安全。
- */
-#define MULTIPLY_OVERFLOW_S(a, b, T)                               \
-    (((a) > 0 && (b) > 0 && (a) > (T)GET_TYPE_MAXIMAL(T) / (b))    \
-     || ((a) > 0 && (b) < 0 && (b) < (T)GET_TYPE_MINIMAL(T) / (a)) \
-     || ((a) < 0 && (b) > 0 && (a) < (T)GET_TYPE_MINIMAL(T) / (b)) \
-     || ((a) < 0 && (b) < 0 && (a) < (T)GET_TYPE_MAXIMAL(T) / (b)))
-
-/**
- * @brief 判断有符号数除法 a / b 是否会溢出（含除数为 0）。
- * @param[in] a 被除数。
- * @param[in] b 除数。
- * @param[in] T 整数类型。
- * @return 1 表示溢出或除数为 0，0 表示安全。
- */
-#define DIVIDE_OVERFLOW_S(a, b, T) ((b) == 0 || ((a) == (T)GET_TYPE_MINIMAL(T) && (b) == (T) - 1))
+    (is_unsigned_type(T) ? (is_unsigned_type(U) ? check_cast_change_u2u(v, T, U) : check_cast_change_u2s(v, T, U)) \
+                         : (is_unsigned_type(U) ? check_cast_change_s2u(v, T, U) : check_cast_change_s2s(v, T, U)))
 
 /**
  * @brief 判断加法 a + b 是否会溢出。
@@ -240,12 +108,12 @@
  */
 #define CHECK_ADD_OVERFLOW(a, b)                            \
     _Generic(((a) + (b)),                                   \
-        int: ADD_OVERFLOW_S(a, b, int),                     \
-        unsigned int: ADD_OVERFLOW_U(a, b, unsigned int),   \
-        long: ADD_OVERFLOW_S(a, b, long),                   \
-        unsigned long: ADD_OVERFLOW_U(a, b, unsigned long), \
-        long long: ADD_OVERFLOW_S(a, b, long long),         \
-        unsigned long long: ADD_OVERFLOW_U(a, b, unsigned long long))
+        int: add_overflow_s(a, b, int),                     \
+        unsigned int: add_overflow_u(a, b, unsigned int),   \
+        long: add_overflow_s(a, b, long),                   \
+        unsigned long: add_overflow_u(a, b, unsigned long), \
+        long long: add_overflow_s(a, b, long long),         \
+        unsigned long long: add_overflow_u(a, b, unsigned long long))
 
 /**
  * @brief 判断减法 a - b 是否会溢出。
@@ -255,12 +123,12 @@
  */
 #define CHECK_SUBTRACT_OVERFLOW(a, b)                            \
     _Generic(((a) - (b)),                                        \
-        int: SUBTRACT_OVERFLOW_S(a, b, int),                     \
-        unsigned int: SUBTRACT_OVERFLOW_U(a, b, unsigned int),   \
-        long: SUBTRACT_OVERFLOW_S(a, b, long),                   \
-        unsigned long: SUBTRACT_OVERFLOW_U(a, b, unsigned long), \
-        long long: SUBTRACT_OVERFLOW_S(a, b, long long),         \
-        unsigned long long: SUBTRACT_OVERFLOW_U(a, b, unsigned long long))
+        int: subtract_overflow_s(a, b, int),                     \
+        unsigned int: subtract_overflow_u(a, b, unsigned int),   \
+        long: subtract_overflow_s(a, b, long),                   \
+        unsigned long: subtract_overflow_u(a, b, unsigned long), \
+        long long: subtract_overflow_s(a, b, long long),         \
+        unsigned long long: subtract_overflow_u(a, b, unsigned long long))
 
 /**
  * @brief 判断乘法 a * b 是否会溢出。
@@ -270,12 +138,12 @@
  */
 #define CHECK_MULTIPLY_OVERFLOW(a, b)                            \
     _Generic(((a) * (b)),                                        \
-        int: MULTIPLY_OVERFLOW_S(a, b, int),                     \
-        unsigned int: MULTIPLY_OVERFLOW_U(a, b, unsigned int),   \
-        long: MULTIPLY_OVERFLOW_S(a, b, long),                   \
-        unsigned long: MULTIPLY_OVERFLOW_U(a, b, unsigned long), \
-        long long: MULTIPLY_OVERFLOW_S(a, b, long long),         \
-        unsigned long long: MULTIPLY_OVERFLOW_U(a, b, unsigned long long))
+        int: multiply_overflow_s(a, b, int),                     \
+        unsigned int: multiply_overflow_u(a, b, unsigned int),   \
+        long: multiply_overflow_s(a, b, long),                   \
+        unsigned long: multiply_overflow_u(a, b, unsigned long), \
+        long long: multiply_overflow_s(a, b, long long),         \
+        unsigned long long: multiply_overflow_u(a, b, unsigned long long))
 
 /**
  * @brief 判断除法 a / b 是否会溢出（含除数为 0）。
@@ -285,12 +153,12 @@
  */
 #define CHECK_DIVIDE_OVERFLOW(a, b)                            \
     _Generic(((a) / (b)),                                      \
-        int: DIVIDE_OVERFLOW_S(a, b, int),                     \
-        unsigned int: DIVIDE_OVERFLOW_U(a, b, unsigned int),   \
-        long: DIVIDE_OVERFLOW_S(a, b, long),                   \
-        unsigned long: DIVIDE_OVERFLOW_U(a, b, unsigned long), \
-        long long: DIVIDE_OVERFLOW_S(a, b, long long),         \
-        unsigned long long: DIVIDE_OVERFLOW_U(a, b, unsigned long long))
+        int: divide_overflow_s(a, b, int),                     \
+        unsigned int: divide_overflow_u(a, b, unsigned int),   \
+        long: divide_overflow_s(a, b, long),                   \
+        unsigned long: divide_overflow_u(a, b, unsigned long), \
+        long long: divide_overflow_s(a, b, long long),         \
+        unsigned long long: divide_overflow_u(a, b, unsigned long long))
 
 /**
  * @brief 获取指针值加数值后的指针。
