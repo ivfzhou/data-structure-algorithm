@@ -155,6 +155,144 @@
                          : (IS_UNSIGNED_TYPE(U) ? CHECK_CAST_CHANGE_S2U(v, T, U) : CHECK_CAST_CHANGE_S2S(v, T, U)))
 
 /**
+ * @brief 判断无符号数加法 a + b 是否会溢出。
+ * @param[in] a 被加数。
+ * @param[in] b 加数。
+ * @param[in] T 整数类型。
+ * @return 1 表示溢出，0 表示安全。
+ */
+#define ADD_OVERFLOW_U(a, b, T) ((a) > (T)GET_TYPE_MAXIMAL(T) - (b))
+
+/**
+ * @brief 判断无符号数减法 a - b 是否会溢出。
+ * @param[in] a 被减数。
+ * @param[in] b 减数。
+ * @param[in] T 整数类型。
+ * @return 1 表示溢出，0 表示安全。
+ */
+#define SUBTRACT_OVERFLOW_U(a, b, T) ((a) < (b))
+
+/**
+ * @brief 判断无符号数乘法 a * b 是否会溢出。
+ * @param[in] a 被乘数。
+ * @param[in] b 乘数。
+ * @param[in] T 整数类型。
+ * @return 1 表示溢出，0 表示安全。
+ */
+#define MULTIPLY_OVERFLOW_U(a, b, T) ((a) != 0 && (b) > (T)GET_TYPE_MAXIMAL(T) / (a))
+
+/**
+ * @brief 判断无符号数除法 a / b 是否会溢出（含除数为 0）。
+ * @param[in] a 被除数。
+ * @param[in] b 除数。
+ * @param[in] T 整数类型。
+ * @return 1 表示溢出或除数为 0，0 表示安全。
+ */
+#define DIVIDE_OVERFLOW_U(a, b, T) ((b) == 0)
+
+/**
+ * @brief 判断有符号数加法 a + b 是否会溢出。
+ * @param[in] a 被加数。
+ * @param[in] b 加数。
+ * @param[in] T 整数类型。
+ * @return 1 表示溢出，0 表示安全。
+ */
+#define ADD_OVERFLOW_S(a, b, T) \
+    (((b) > 0 && (a) > (T)GET_TYPE_MAXIMAL(T) - (b)) || ((b) < 0 && (a) < (T)GET_TYPE_MINIMAL(T) - (b)))
+
+/**
+ * @brief 判断有符号数减法 a - b 是否会溢出。
+ * @param[in] a 被减数。
+ * @param[in] b 减数。
+ * @param[in] T 整数类型。
+ * @return 1 表示溢出，0 表示安全。
+ */
+#define SUBTRACT_OVERFLOW_S(a, b, T) \
+    (((b) < 0 && (a) > (T)GET_TYPE_MAXIMAL(T) + (b)) || ((b) > 0 && (a) < (T)GET_TYPE_MINIMAL(T) + (b)))
+
+/**
+ * @brief 判断有符号数乘法 a * b 是否会溢出。
+ * @param[in] a 被乘数。
+ * @param[in] b 乘数。
+ * @param[in] T 整数类型。
+ * @return 1 表示溢出，0 表示安全。
+ */
+#define MULTIPLY_OVERFLOW_S(a, b, T)                               \
+    (((a) > 0 && (b) > 0 && (a) > (T)GET_TYPE_MAXIMAL(T) / (b))    \
+     || ((a) > 0 && (b) < 0 && (b) < (T)GET_TYPE_MINIMAL(T) / (a)) \
+     || ((a) < 0 && (b) > 0 && (a) < (T)GET_TYPE_MINIMAL(T) / (b)) \
+     || ((a) < 0 && (b) < 0 && (a) < (T)GET_TYPE_MAXIMAL(T) / (b)))
+
+/**
+ * @brief 判断有符号数除法 a / b 是否会溢出（含除数为 0）。
+ * @param[in] a 被除数。
+ * @param[in] b 除数。
+ * @param[in] T 整数类型。
+ * @return 1 表示溢出或除数为 0，0 表示安全。
+ */
+#define DIVIDE_OVERFLOW_S(a, b, T) ((b) == 0 || ((a) == (T)GET_TYPE_MINIMAL(T) && (b) == (T) - 1))
+
+/**
+ * @brief 判断加法 a + b 是否会溢出。
+ * @param[in] a 被加数。
+ * @param[in] b 加数。
+ * @return 1 表示溢出，0 表示安全。
+ */
+#define CHECK_ADD_OVERFLOW(a, b)                            \
+    _Generic(((a) + (b)),                                   \
+        int: ADD_OVERFLOW_S(a, b, int),                     \
+        unsigned int: ADD_OVERFLOW_U(a, b, unsigned int),   \
+        long: ADD_OVERFLOW_S(a, b, long),                   \
+        unsigned long: ADD_OVERFLOW_U(a, b, unsigned long), \
+        long long: ADD_OVERFLOW_S(a, b, long long),         \
+        unsigned long long: ADD_OVERFLOW_U(a, b, unsigned long long))
+
+/**
+ * @brief 判断减法 a - b 是否会溢出。
+ * @param[in] a 被减数。
+ * @param[in] b 减数。
+ * @return 1 表示溢出，0 表示安全。
+ */
+#define CHECK_SUBTRACT_OVERFLOW(a, b)                            \
+    _Generic(((a) - (b)),                                        \
+        int: SUBTRACT_OVERFLOW_S(a, b, int),                     \
+        unsigned int: SUBTRACT_OVERFLOW_U(a, b, unsigned int),   \
+        long: SUBTRACT_OVERFLOW_S(a, b, long),                   \
+        unsigned long: SUBTRACT_OVERFLOW_U(a, b, unsigned long), \
+        long long: SUBTRACT_OVERFLOW_S(a, b, long long),         \
+        unsigned long long: SUBTRACT_OVERFLOW_U(a, b, unsigned long long))
+
+/**
+ * @brief 判断乘法 a * b 是否会溢出。
+ * @param[in] a 被乘数。
+ * @param[in] b 乘数。
+ * @return 1 表示溢出，0 表示安全。
+ */
+#define CHECK_MULTIPLY_OVERFLOW(a, b)                            \
+    _Generic(((a) * (b)),                                        \
+        int: MULTIPLY_OVERFLOW_S(a, b, int),                     \
+        unsigned int: MULTIPLY_OVERFLOW_U(a, b, unsigned int),   \
+        long: MULTIPLY_OVERFLOW_S(a, b, long),                   \
+        unsigned long: MULTIPLY_OVERFLOW_U(a, b, unsigned long), \
+        long long: MULTIPLY_OVERFLOW_S(a, b, long long),         \
+        unsigned long long: MULTIPLY_OVERFLOW_U(a, b, unsigned long long))
+
+/**
+ * @brief 判断除法 a / b 是否会溢出（含除数为 0）。
+ * @param[in] a 被除数。
+ * @param[in] b 除数。
+ * @return 1 表示溢出或除数为 0，0 表示安全。
+ */
+#define CHECK_DIVIDE_OVERFLOW(a, b)                            \
+    _Generic(((a) / (b)),                                      \
+        int: DIVIDE_OVERFLOW_S(a, b, int),                     \
+        unsigned int: DIVIDE_OVERFLOW_U(a, b, unsigned int),   \
+        long: DIVIDE_OVERFLOW_S(a, b, long),                   \
+        unsigned long: DIVIDE_OVERFLOW_U(a, b, unsigned long), \
+        long long: DIVIDE_OVERFLOW_S(a, b, long long),         \
+        unsigned long long: DIVIDE_OVERFLOW_U(a, b, unsigned long long))
+
+/**
  * @brief 获取指针值加数值后的指针。
  * @param[in] p 被加数值的指针。
  * @param[in] delta 指针加上的字节数。
