@@ -22,6 +22,30 @@
 
 #include "list.h"
 
+#ifndef ARRAY_LIST_EXPAND_THRESHOLD
+    /**
+     * @brief 扩容阈值。
+     * @details 当线性表长度大于此值时，扩容长度将为原长度乘以 ARRAY_LIST_EXPAND_FACTOR。
+     *          否则扩容长度为原长度加一。
+     *          若要修改此值，在 include array_list.h 前定义该宏。
+     */
+    #define ARRAY_LIST_EXPAND_THRESHOLD 256
+#endif
+
+#ifndef ARRAY_LIST_EXPAND_FACTOR
+    /**
+     * @brief 扩容系数。
+     */
+    #define ARRAY_LIST_EXPAND_FACTOR 1.25L
+#endif
+
+#ifndef ARRAY_LIST_REDUCE_FACTOR
+    /**
+     * @brief 缩容系数。
+     */
+    #define ARRAY_LIST_REDUCE_FACTOR 2L
+#endif
+
 /**
  * @brief 顺序线性表类型定义。
  */
@@ -71,13 +95,14 @@ size_t ArrayList_Len(const ArrayList* list);
  */
 int ArrayList_Get(const ArrayList* list, size_t index, void* elem);
 
-// 向顺序表中插入元素。
-// list：顺序表。
-// index：插入元素的位置。
-// elem：被插入的元素。
-// 时间复杂度：O(1)
-// 空间复杂度：O(1)
-// 返回 1: 越界。
+/**
+ * @brief 向顺序表中插入元素。时间复杂度：O(1)，空间复杂度：O(1)。
+ * @param[in] list 顺序线性表类型指针。
+ * @param[in] index 元素插入位置。从 0 开始计数，最大值可以是线性表长度，否则报错越界。
+ * @param[in] elem 将被插入到线性表中的元素指针。
+ * @retval 0 操作成功。
+ * @retval 1 index 越界。
+ */
 int ArrayList_Insert(ArrayList* list, size_t index, const void* elem);
 
 // 删除顺序表中一个元素。

@@ -15,18 +15,9 @@
 #include "array_list.h"
 #include "common.h"
 
-// 扩容阈值。
-static const int EXPAND_THRESHOLD = 256;
-
-// 扩容系数。
-static const long double EXPAND_FACTOR = 1.25L;
-
-// 缩容系数。
-static const long double REDUCE_FACTOR = 2L;
-
 // 判断是否需要缩容。
 static _Bool needReduce(const ArrayList* list) {
-    return list->length > EXPAND_THRESHOLD && (list->length * REDUCE_FACTOR <= list->capacity);
+    return list->length > ARRAY_LIST_EXPAND_THRESHOLD && (list->length * ARRAY_LIST_REDUCE_FACTOR <= list->capacity);
 }
 
 // 判断是否需要扩容。
@@ -34,10 +25,10 @@ static _Bool needExpand(const ArrayList* list) { return list->length >= list->ca
 
 // 扩容并插入元素。
 static int expandAndInsert(ArrayList* list, const size_t index, const void* elem) {
-    if (list->capacity < EXPAND_THRESHOLD)
+    if (list->capacity < ARRAY_LIST_EXPAND_THRESHOLD)
         list->capacity += list->capacity + 1;
     else
-        list->capacity = (size_t)(list->capacity * EXPAND_FACTOR);
+        list->capacity = (size_t)(list->capacity * ARRAY_LIST_EXPAND_FACTOR);
 
     void* newElems = malloc(list->elemSize * list->capacity);
 
@@ -64,7 +55,7 @@ static int expandAndInsert(ArrayList* list, const size_t index, const void* elem
 static int deallocAndPop(ArrayList* list, const size_t index, void* elem) {
     if (elem != NULL) memcpy(elem, PointerAdd(list->elems, index * list->elemSize), list->elemSize);
 
-    void* newElems = malloc(list->elemSize * (size_t)(list->length * EXPAND_FACTOR));
+    void* newElems = malloc(list->elemSize * (size_t)(list->length * ARRAY_LIST_EXPAND_FACTOR));
 
     // 复制前段。
     if (index) memcpy(newElems, list->elems, list->elemSize * index);
