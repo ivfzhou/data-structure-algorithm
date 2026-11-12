@@ -31,13 +31,30 @@
      */
     #define ARRAY_LIST_EXPAND_THRESHOLD 256
 #endif
+_Static_assert(ARRAY_LIST_EXPAND_THRESHOLD > 0, "ARRAY_LIST_EXPAND_THRESHOLD must be greater than 0");
 
-#ifndef ARRAY_LIST_EXPAND_FACTOR
+#ifndef ARRAY_LIST_EXPAND_FACTOR_NUM
     /**
-     * @brief 扩容系数。
+     * @brief 扩容系数的分子。
+     * @details 扩容系数 ARRAY_LIST_EXPAND_FACTOR = ARRAY_LIST_EXPAND_FACTOR_NUM / ARRAY_LIST_EXPAND_FACTOR_DEN。
+     *          以整数有理数形式定义，从而可用整型常量表达式在编译期校验其大于 1。
+     *          若要修改此值，在 include array_list.h 前定义该宏。
      */
-    #define ARRAY_LIST_EXPAND_FACTOR 1.25L
+    #define ARRAY_LIST_EXPAND_FACTOR_NUM 5L
 #endif
+#ifndef ARRAY_LIST_EXPAND_FACTOR_DEN
+    /**
+     * @brief 扩容系数的分母。
+     * @details 扩容系数 ARRAY_LIST_EXPAND_FACTOR = ARRAY_LIST_EXPAND_FACTOR_NUM / ARRAY_LIST_EXPAND_FACTOR_DEN。
+     *          若要修改此值，在 include array_list.h 前定义该宏。
+     */
+    #define ARRAY_LIST_EXPAND_FACTOR_DEN 4L
+#endif
+_Static_assert(ARRAY_LIST_EXPAND_FACTOR_DEN > 0L, "ARRAY_LIST_EXPAND_FACTOR_DEN must be greater than 0");
+_Static_assert(ARRAY_LIST_EXPAND_FACTOR_NUM > ARRAY_LIST_EXPAND_FACTOR_DEN,
+               "ARRAY_LIST_EXPAND_FACTOR must be greater than 1");
+
+#define array_list_expand_factor ((long double)ARRAY_LIST_EXPAND_FACTOR_NUM / (long double)ARRAY_LIST_EXPAND_FACTOR_DEN)
 
 #ifndef ARRAY_LIST_REDUCE_FACTOR
     /**
@@ -97,6 +114,7 @@ int ArrayList_Get(const ArrayList* list, size_t index, void* elem);
 
 /**
  * @brief 向顺序表中插入元素。时间复杂度：O(1)，空间复杂度：O(1)。
+ * @details 不会删除覆盖元素，而是被插入位开始的元素向后挪一位。
  * @param[in] list 顺序线性表类型指针。
  * @param[in] index 元素插入位置。从 0 开始计数，最大值可以是线性表长度，否则报错越界。
  * @param[in] elem 将被插入到线性表中的元素指针。

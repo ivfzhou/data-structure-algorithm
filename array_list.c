@@ -25,10 +25,16 @@ static _Bool needExpand(const ArrayList* list) { return list->length >= list->ca
 
 // 扩容并插入元素。
 static int expandAndInsert(ArrayList* list, const size_t index, const void* elem) {
-    if (list->capacity < ARRAY_LIST_EXPAND_THRESHOLD)
-        list->capacity += list->capacity + 1;
-    else
-        list->capacity = (size_t)(list->capacity * ARRAY_LIST_EXPAND_FACTOR);
+    if (list->capacity < ARRAY_LIST_EXPAND_THRESHOLD) {
+        if (CHECK_ADD_OVERFLOW(list->capacity, 1)) return 1;
+        list->capacity++;
+    } else {
+        if (CHECK_CAST_CHANGE(list->capacity, size_t, long double)) return 1;
+        const long double capacity = (long double)list->capacity;
+        if (CHECK_MULTIPLY_OVERFLOW(capacity, array_list_expand_factor)) return 1;
+        const size_t newCapacity = (size_t)(capacity * array_list_expand_factor);
+        if (list->capacity <= newCapacity) list->capacity++;
+    }
 
     void* newElems = malloc(list->elemSize * list->capacity);
 
@@ -55,7 +61,7 @@ static int expandAndInsert(ArrayList* list, const size_t index, const void* elem
 static int deallocAndPop(ArrayList* list, const size_t index, void* elem) {
     if (elem != NULL) memcpy(elem, PointerAdd(list->elems, index * list->elemSize), list->elemSize);
 
-    void* newElems = malloc(list->elemSize * (size_t)(list->length * ARRAY_LIST_EXPAND_FACTOR));
+    void* newElems = malloc(list->elemSize * (size_t)(list->length * array_list_expand_factor));
 
     // 复制前段。
     if (index) memcpy(newElems, list->elems, list->elemSize * index);
@@ -76,15 +82,14 @@ static int deallocAndPop(ArrayList* list, const size_t index, void* elem) {
 static _Bool checkMemoryOverlap(const ArrayList* list, const void* elem) {
     const uintptr_t elemPtr = (uintptr_t)elem;
     const uintptr_t startPtr = (uintptr_t)list->elems;
-    const size_t elemSize = list->capacity * list->elemSize;
 
-    // 类型强转溢出，保守视为重叠。
-    if (!CHECK_CAST_CHANGE(elemSize, size_t, uintptr_t)) return 1;
+    if (CHECK_MULTIPLY_OVERFLOW(list->capacity, list->elemSize)) return 1;
+    const size_t size = list->capacity * list->elemSize;
 
-    // 加法溢出，保守视为重叠。
-    if (CHECK_ADD_OVERFLOW(startPtr, (uintptr_t)elemSize)) return 1;
+    if (CHECK_CAST_CHANGE(size, size_t, uintptr_t)) return 1;
+    if (CHECK_ADD_OVERFLOW(startPtr, (uintptr_t)size)) return 1;
+    const uintptr_t endPtr = startPtr + (uintptr_t)size;
 
-    const uintptr_t endPtr = startPtr + (uintptr_t)elemSize;
     return elemPtr >= startPtr && elemPtr < endPtr;
 }
 
@@ -124,11 +129,12 @@ int ArrayList_Insert(ArrayList* list, const size_t index, const void* elem) {
     // 扩容。
     if (needExpand(list)) return expandAndInsert(list, index, elem);
 
-    // 从index往后移动一位。
+    // 从 index 往后移动一位。
     if (list->length - index)
         memmove(PointerAdd(list->elems, (index + 1) * list->elemSize),
                 PointerAdd(list->elems, index * list->elemSize),
                 list->elemSize * (list->length - index));
+
     // 设置元素。
     memcpy(PointerAdd(list->elems, index * list->elemSize), elem, list->elemSize);
 
