@@ -70,20 +70,16 @@
 
 #define check_cast_change_s2u(v, T, U) (!((v) >= 0 && (T)(U)(v) == (T)(v)))
 
-/* 浮点 → 浮点：NaN 视为不变；否则回环比较检测精度损失或溢出。 */
 #define check_cast_change_f2f(v, T, U) (!(isnan((long double)(v)) || (T)(U)(v) == (T)(v)))
 
-/* 浮点 → 整型：NaN、无穷、越界或有小数部分都视为改变。 */
 #define check_cast_change_f2i(v, T, U)                                                                         \
     (isnan((long double)(v)) || isinf((long double)(v)) || (long double)(v) < (long double)get_type_minimal(U) \
      || (long double)(v) > (long double)get_type_maximal(U) || (T)(U)(v) != (T)(v))
 
-/* 整型 → 浮点：回环比较检测精度损失。 */
 #define check_cast_change_i2f(v, T, U)                                                                                \
     ((long double)(U)(v) < (long double)get_type_minimal(T) || (long double)(U)(v) > (long double)get_type_maximal(T) \
      || (T)(U)(v) != (T)(v))
 
-/* 整型 → 整型：原有逻辑。 */
 #define check_cast_change_i2i(v, T, U)                                                                             \
     (is_unsigned_type(T) ? (is_unsigned_type(U) ? check_cast_change_u2u(v, T, U) : check_cast_change_u2s(v, T, U)) \
                          : (is_unsigned_type(U) ? check_cast_change_s2u(v, T, U) : check_cast_change_s2s(v, T, U)))

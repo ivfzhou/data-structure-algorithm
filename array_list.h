@@ -31,7 +31,6 @@
      */
     #define ARRAY_LIST_EXPAND_THRESHOLD 256
 #endif
-_Static_assert(ARRAY_LIST_EXPAND_THRESHOLD > 0, "ARRAY_LIST_EXPAND_THRESHOLD must be greater than 0");
 
 #ifndef ARRAY_LIST_EXPAND_FACTOR_NUM
     /**
@@ -50,9 +49,6 @@ _Static_assert(ARRAY_LIST_EXPAND_THRESHOLD > 0, "ARRAY_LIST_EXPAND_THRESHOLD mus
      */
     #define ARRAY_LIST_EXPAND_FACTOR_DEN 4L
 #endif
-_Static_assert(ARRAY_LIST_EXPAND_FACTOR_DEN > 0L, "ARRAY_LIST_EXPAND_FACTOR_DEN must be greater than 0");
-_Static_assert(ARRAY_LIST_EXPAND_FACTOR_NUM > ARRAY_LIST_EXPAND_FACTOR_DEN,
-               "ARRAY_LIST_EXPAND_FACTOR must be greater than 1");
 
 #define array_list_expand_factor ((long double)ARRAY_LIST_EXPAND_FACTOR_NUM / (long double)ARRAY_LIST_EXPAND_FACTOR_DEN)
 

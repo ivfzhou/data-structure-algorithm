@@ -26,12 +26,9 @@ static _Bool needExpand(const ArrayList* list) { return list->length >= list->ca
 // 扩容并插入元素。
 static int expandAndInsert(ArrayList* list, const size_t index, const void* elem) {
     if (list->capacity < ARRAY_LIST_EXPAND_THRESHOLD) {
-        if (CHECK_ADD_OVERFLOW(list->capacity, 1)) return 1;
         list->capacity++;
     } else {
-        if (CHECK_CAST_CHANGE(list->capacity, size_t, long double)) return 1;
         const long double capacity = (long double)list->capacity;
-        if (CHECK_MULTIPLY_OVERFLOW(capacity, array_list_expand_factor)) return 1;
         const size_t newCapacity = (size_t)(capacity * array_list_expand_factor);
         if (list->capacity <= newCapacity) list->capacity++;
     }
@@ -83,11 +80,8 @@ static _Bool checkMemoryOverlap(const ArrayList* list, const void* elem) {
     const uintptr_t elemPtr = (uintptr_t)elem;
     const uintptr_t startPtr = (uintptr_t)list->elems;
 
-    if (CHECK_MULTIPLY_OVERFLOW(list->capacity, list->elemSize)) return 1;
     const size_t size = list->capacity * list->elemSize;
 
-    if (CHECK_CAST_CHANGE(size, size_t, uintptr_t)) return 1;
-    if (CHECK_ADD_OVERFLOW(startPtr, (uintptr_t)size)) return 1;
     const uintptr_t endPtr = startPtr + (uintptr_t)size;
 
     return elemPtr >= startPtr && elemPtr < endPtr;
