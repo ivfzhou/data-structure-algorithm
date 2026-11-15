@@ -4,6 +4,7 @@
 /**
  * @file common.h
  * @brief 放置公共代码定义。
+ * @detials 包含了数字类型强转溢出判断宏函数、数字变量四则运算溢出判断宏函数。
  */
 
 #include <float.h>
@@ -16,18 +17,21 @@
 
 #define is_float_type(T) _Generic((T)0, float: 1, double: 1, long double: 1, default: 0)
 
-#define get_type_minimal(T)                 \
-    _Generic((T)0,                          \
-        _Bool: (intmax_t)0,                 \
-        char: (intmax_t)CHAR_MIN,           \
-        signed char: (intmax_t)SCHAR_MIN,   \
-        short: (intmax_t)SHRT_MIN,          \
-        int: (intmax_t)INT_MIN,             \
-        long: (intmax_t)LONG_MIN,           \
-        long long: (intmax_t)LLONG_MIN,     \
-        float: (long double)FLT_MIN,        \
-        double: (long double)DBL_MIN,       \
-        long double: (long double)LDBL_MIN, \
+/**
+ * 浮点类型的最值取最小可表示的有限值（即 -FLT_MAX），而非最小正数 FLT_MIN。
+ */
+#define get_type_minimal(T)                    \
+    _Generic((T)0,                             \
+        _Bool: (intmax_t)0,                    \
+        char: (intmax_t)CHAR_MIN,              \
+        signed char: (intmax_t)SCHAR_MIN,      \
+        short: (intmax_t)SHRT_MIN,             \
+        int: (intmax_t)INT_MIN,                \
+        long: (intmax_t)LONG_MIN,              \
+        long long: (intmax_t)LLONG_MIN,        \
+        float: (long double)(-FLT_MAX),        \
+        double: (long double)(-DBL_MAX),       \
+        long double: (long double)(-LDBL_MAX), \
         default: (intmax_t)0)
 
 #define get_type_maximal(T)                        \
@@ -52,7 +56,7 @@
 
 #define check_type_range_fitness_u2s(T, U) (get_type_maximal(T) <= get_type_maximal(U))
 
-#define check_type_range_fitness_s2s(T, U) \
+#define check_type_range_fitness_sf(T, U) \
     (get_type_minimal(T) >= get_type_minimal(U) && get_type_maximal(T) <= get_type_maximal(U))
 
 #define check_type_range_fitness_s2u(T, U) 0
@@ -60,7 +64,7 @@
 #define check_type_range_fitness(T, U)                                                                     \
     (is_unsigned_type(T)                                                                                   \
          ? (is_unsigned_type(U) ? check_type_range_fitness_u2u(T, U) : check_type_range_fitness_u2s(T, U)) \
-         : (is_unsigned_type(U) ? check_type_range_fitness_s2u(T, U) : check_type_range_fitness_s2s(T, U)))
+         : (is_unsigned_type(U) ? check_type_range_fitness_s2u(T, U) : check_type_range_fitness_sf(T, U)))
 
 #define check_cast_change_u2u(v, T, U) ((T)(U)(v) != (T)(v))
 
