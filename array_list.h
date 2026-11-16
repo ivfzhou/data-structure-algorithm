@@ -29,14 +29,13 @@
      *          否则扩容长度为原长度加一。
      *          若要修改此值，在 include array_list.h 前定义该宏。
      */
-    #define ARRAY_LIST_EXPAND_THRESHOLD 256
+    #define ARRAY_LIST_EXPAND_THRESHOLD 256L
 #endif
 
 #ifndef ARRAY_LIST_EXPAND_FACTOR_NUM
     /**
      * @brief 扩容系数的分子。
      * @details 扩容系数 ARRAY_LIST_EXPAND_FACTOR = ARRAY_LIST_EXPAND_FACTOR_NUM / ARRAY_LIST_EXPAND_FACTOR_DEN。
-     *          以整数有理数形式定义，从而可用整型常量表达式在编译期校验其大于 1。
      *          若要修改此值，在 include array_list.h 前定义该宏。
      */
     #define ARRAY_LIST_EXPAND_FACTOR_NUM 5L
@@ -55,6 +54,9 @@
 #ifndef ARRAY_LIST_REDUCE_FACTOR
     /**
      * @brief 缩容系数。
+     * @details 判断线性表可以缩容的因素，若线性表长度大于 ARRAY_LIST_EXPAND_THRESHOLD，
+     *          且线性表长度与 ARRAY_LIST_REDUCE_FACTOR 乘积不大于线性表容量，就进行缩容操作。
+     *          若要修改此值，在 include array_list.h 前定义该宏。
      */
     #define ARRAY_LIST_REDUCE_FACTOR 2L
 #endif
@@ -119,12 +121,13 @@ int ArrayList_Get(const ArrayList* list, size_t index, void* elem);
  */
 int ArrayList_Insert(ArrayList* list, size_t index, const void* elem);
 
-// 删除顺序表中一个元素。
-// list：顺序表。
-// index：元素所在位置。
-// 时间复杂度：O(1)
-// 空间复杂度：O(1)
-// 返回 1: 越界。
+/**
+ * @brief 删除顺序表中一个元素。时间复杂度：O(1)，空间复杂度：O(1)。
+ * @param[in] list 顺序线性表类型指针。
+ * @param[in] index 被删除元素下标。从 0 开始计数，最大值可以是线性表长度，否则报错越界。
+ * @retval 0 操作成功。
+ * @retval 1 index 越界。
+ */
 int ArrayList_Del(ArrayList* list, size_t index);
 
 // 获取一个元素在顺序表中的位置。

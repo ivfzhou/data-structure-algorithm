@@ -17,7 +17,7 @@
 
 // 判断是否需要缩容。
 static _Bool needReduce(const ArrayList* list) {
-    return list->length > ARRAY_LIST_EXPAND_THRESHOLD && (list->length * ARRAY_LIST_REDUCE_FACTOR <= list->capacity);
+    return list->length > ARRAY_LIST_EXPAND_THRESHOLD && list->length * ARRAY_LIST_REDUCE_FACTOR <= list->capacity;
 }
 
 // 判断是否需要扩容。
@@ -25,21 +25,25 @@ static _Bool needExpand(const ArrayList* list) { return list->length >= list->ca
 
 // 扩容并插入元素。
 static int expandAndInsert(ArrayList* list, const size_t index, const void* elem) {
+    // 计算出线性表容量。
     if (list->capacity < ARRAY_LIST_EXPAND_THRESHOLD) {
         list->capacity++;
     } else {
-        const long double capacity = (long double)list->capacity;
-        const size_t newCapacity = (size_t)(capacity * array_list_expand_factor);
-        if (list->capacity <= newCapacity) list->capacity++;
+        const size_t newCapacity = (size_t)((long double)list->capacity * array_list_expand_factor);
+        if (list->capacity <= newCapacity)
+            list->capacity++;
+        else
+            list->capacity = newCapacity;
     }
 
+    // 分配新的内存。
     void* newElems = malloc(list->elemSize * list->capacity);
 
-    // 复制前段。
+    // 复制表前段元素。
     if (index && list->elems != NULL) memcpy(newElems, list->elems, list->elemSize * index);
 
-    // 复制后段。
-    if ((list->length - index) && list->elems != NULL)
+    // 复制表后段元素。
+    if (list->length - index && list->elems != NULL)
         memcpy(PointerAdd(newElems, (index + 1) * list->elemSize),
                PointerAdd(list->elems, index * list->elemSize),
                list->elemSize * (list->length - index));
@@ -47,6 +51,7 @@ static int expandAndInsert(ArrayList* list, const size_t index, const void* elem
     // 设置新元素。
     memcpy(PointerAdd(newElems, index * list->elemSize), elem, list->elemSize);
 
+    // 回收老内存，设置新内存地址。
     free(list->elems);
     list->elems = newElems;
     list->length++;
@@ -58,7 +63,10 @@ static int expandAndInsert(ArrayList* list, const size_t index, const void* elem
 static int deallocAndPop(ArrayList* list, const size_t index, void* elem) {
     if (elem != NULL) memcpy(elem, PointerAdd(list->elems, index * list->elemSize), list->elemSize);
 
-    void* newElems = malloc(list->elemSize * (size_t)(list->length * array_list_expand_factor));
+    // 分配新内存。
+    size_t newCapacity = (size_t)((long double)list->length * array_list_expand_factor);
+    if (newCapacity < list->length - 1) newCapacity = list->length - 1;
+    void* newElems = malloc(list->elemSize * newCapacity);
 
     // 复制前段。
     if (index) memcpy(newElems, list->elems, list->elemSize * index);
@@ -69,6 +77,7 @@ static int deallocAndPop(ArrayList* list, const size_t index, void* elem) {
                PointerAdd(list->elems, index * list->elemSize),
                list->elemSize * (list->length - index));
 
+    // 回收老内存，设置新内存。
     free(list->elems);
     list->elems = newElems;
     list->length--;
@@ -79,11 +88,7 @@ static int deallocAndPop(ArrayList* list, const size_t index, void* elem) {
 static _Bool checkMemoryOverlap(const ArrayList* list, const void* elem) {
     const uintptr_t elemPtr = (uintptr_t)elem;
     const uintptr_t startPtr = (uintptr_t)list->elems;
-
-    const size_t size = list->capacity * list->elemSize;
-
-    const uintptr_t endPtr = startPtr + (uintptr_t)size;
-
+    const uintptr_t endPtr = startPtr + list->capacity * list->elemSize;
     return elemPtr >= startPtr && elemPtr < endPtr;
 }
 

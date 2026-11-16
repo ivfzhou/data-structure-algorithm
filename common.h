@@ -90,17 +90,19 @@
 
 #define add_overflow_u(a, b, T) ((a) > (T)get_type_maximal(T) - (b))
 
-#define subtract_overflow_u(a, b, T) ((a) < (b))
-
-#define multiply_overflow_u(a, b, T) ((a) != 0 && (b) > (T)get_type_maximal(T) / (a))
-
-#define divide_overflow_u(a, b, T) ((b) == 0)
-
 #define add_overflow_s(a, b, T) \
     (((b) > 0 && (a) > (T)get_type_maximal(T) - (b)) || ((b) < 0 && (a) < (T)get_type_minimal(T) - (b)))
 
+#define add_overflow_f(a, b, T) (!isfinite((a) + (b)))
+
+#define subtract_overflow_u(a, b, T) ((a) < (b))
+
 #define subtract_overflow_s(a, b, T) \
     (((b) < 0 && (a) > (T)get_type_maximal(T) + (b)) || ((b) > 0 && (a) < (T)get_type_minimal(T) + (b)))
+
+#define subtract_overflow_f(a, b, T) (!isfinite((a) - (b)))
+
+#define multiply_overflow_u(a, b, T) ((a) != 0 && (b) > (T)get_type_maximal(T) / (a))
 
 #define multiply_overflow_s(a, b, T)                               \
     (((a) > 0 && (b) > 0 && (a) > (T)get_type_maximal(T) / (b))    \
@@ -108,13 +110,11 @@
      || ((a) < 0 && (b) > 0 && (a) < (T)get_type_minimal(T) / (b)) \
      || ((a) < 0 && (b) < 0 && (a) < (T)get_type_maximal(T) / (b)))
 
-#define divide_overflow_s(a, b, T) ((b) == 0 || ((a) == (T)get_type_minimal(T) && (b) == (T) - 1))
-
-#define add_overflow_f(a, b, T) (!isfinite((a) + (b)))
-
-#define subtract_overflow_f(a, b, T) (!isfinite((a) - (b)))
-
 #define multiply_overflow_f(a, b, T) (!isfinite((a) * (b)))
+
+#define divide_overflow_u(a, b, T) ((b) == 0)
+
+#define divide_overflow_s(a, b, T) ((b) == 0 || ((a) == (T)get_type_minimal(T) && (b) == (T) - 1))
 
 #define divide_overflow_f(a, b, T) ((b) == 0 || !isfinite((a) / (b)))
 
