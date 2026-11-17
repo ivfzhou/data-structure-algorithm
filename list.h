@@ -31,17 +31,29 @@ typedef struct {
     void* impl; // 线性表实现。
 } List;
 
-// 线性表比较器。
-// 返回 0 表示相等。
-// 返回 -1 表示后者大。
-// 返回 1 表示前者大。
+/**
+ * @brief 线性表比较器。
+ * @param[in] e1 元素指针。
+ * @param[in] e2 元素指针。
+ * @return e1 与 e2 的大小关系。
+ * @retval 0 表示相等。
+ * @retval -1 表示后者大。
+ * @retval 1 表示前者大。
+ */
 typedef int ListElemComparer(const void* e1, const void* e2);
 
-// 线性表元素访问器。
+/**
+ * @brief 线性表元素访问器。
+ * @param[in] elem 元素指针。
+ */
 typedef void ListElemVisitor(void* elem);
 
-// 将元素转化成字符串形式表示到 s 并返回长度。
-typedef size_t ListElemToString(void* elem, char* s);
+/**
+ * @brief 将元素转化成字符串形式表示到 s 并返回长度。
+ * @param[in] elem 元素指针。
+ * @param[out] s
+ */
+typedef size_t ListElemToString(const void* elem, char* s);
 
 // 初始化线性表。
 // list：指针地址将被设置为初始化的线性表。

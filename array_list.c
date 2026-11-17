@@ -111,7 +111,10 @@ void ArrayList_Free(ArrayList* list) {
     free(list);
 }
 
-size_t ArrayList_Len(const ArrayList* list) { return list->length; }
+size_t ArrayList_Len(const ArrayList* list) {
+    if (!list) return 0;
+    return list->length;
+}
 
 int ArrayList_Get(const ArrayList* list, const size_t index, void* elem) {
     if (!list) return 1;
@@ -123,7 +126,9 @@ int ArrayList_Get(const ArrayList* list, const size_t index, void* elem) {
 }
 
 int ArrayList_Insert(ArrayList* list, const size_t index, const void* elem) {
-    if (index > list->length) return 1;
+    if (!list) return 1;
+    if (index > list->length) return 2;
+    if (!elem) return 3;
 
     // 扩容。
     if (needExpand(list)) return expandAndInsert(list, index, elem);
@@ -142,7 +147,8 @@ int ArrayList_Insert(ArrayList* list, const size_t index, const void* elem) {
 }
 
 int ArrayList_Del(ArrayList* list, const size_t index) {
-    if (index >= list->length) return 1;
+    if (!list) return 1;
+    if (index >= list->length) return 2;
 
     // 缩容。
     if (needReduce(list)) return deallocAndPop(list, index, NULL);
@@ -158,25 +164,33 @@ int ArrayList_Del(ArrayList* list, const size_t index) {
 }
 
 int ArrayList_Locate(const ArrayList* list, ListElemComparer cmp, const void* elem, size_t* index) {
+    if (!list) return 1;
+    if (!cmp) return 2;
+    if (!elem) return 3;
+    if (!index) return 4;
     for (size_t i = 0; i < list->length; i++) {
         if (!cmp(PointerAdd(list->elems, i * list->elemSize), elem)) {
             *index = i;
             return 0;
         }
     }
-    return 1;
+    return -1;
 }
 
-int ArrayList_Travel(const ArrayList* list, ListElemVisitor visit) {
-    for (size_t i = 0; i < list->length; i++) visit(PointerAdd(list->elems, i * list->elemSize));
+int ArrayList_Travel(const ArrayList* list, ListElemVisitor visitor) {
+    if (!list) return 1;
+    if (!visitor) return 2;
+    for (size_t i = 0; i < list->length; i++) visitor(PointerAdd(list->elems, i * list->elemSize));
 
     return 0;
 }
 
 int ArrayList_Clear(ArrayList* list) {
+    if (!list) return 1;
     free(list->elems);
     list->elems = NULL;
     list->length = list->capacity = 0;
+    free(list);
     return 0;
 }
 
@@ -189,13 +203,17 @@ int ArrayList_RPush(ArrayList* list, const void* elem) { return ArrayList_Insert
 int ArrayList_LPop(ArrayList* list, void* elem) { return ArrayList_GetDel(list, 0, elem); }
 
 int ArrayList_Set(ArrayList* list, const size_t index, const void* elem) {
-    if (index >= list->length) return 1;
+    if (!list) return 1;
+    if (index >= list->length) return 2;
+    if (!elem) return 3;
     memcpy(PointerAdd(list->elems, index * list->elemSize), elem, list->elemSize);
     return 0;
 }
 
 int ArrayList_GetDel(ArrayList* list, const size_t index, void* elem) {
-    if (index >= list->length) return 1;
+    if (!list) return 1;
+    if (index >= list->length) return 2;
+    if (!elem) return 3;
 
     // 缩容。
     if (needReduce(list)) return deallocAndPop(list, index, elem);
@@ -214,7 +232,9 @@ int ArrayList_GetDel(ArrayList* list, const size_t index, void* elem) {
 }
 
 int ArrayList_GetSet(ArrayList* list, const size_t index, void* elem) {
-    if (index >= list->length) return 1;
+    if (!list) return 1;
+    if (index >= list->length) return 2;
+    if (!elem) return 3;
 
     void* tmp = malloc(list->elemSize);
     memcpy(tmp, PointerAdd(list->elems, index * list->elemSize), list->elemSize); // 元素先放临时变量中。
@@ -224,20 +244,29 @@ int ArrayList_GetSet(ArrayList* list, const size_t index, void* elem) {
     return 0;
 }
 
-int ArrayList_FPrint(const ArrayList* list, FILE* f, ListElemToString str, size_t sizeOfElem) {
-    fprintf(f, "[");
-    char s[sizeOfElem + 1];
+int ArrayList_FPrint(const ArrayList* list, FILE* out, ListElemToString stringify, size_t sizeOfElem) {
+    if (!list) return 1;
+    if (!out) return 2;
+    if (!stringify) return 3;
+
+    fprintf(out, "[");
+    char* tmp = malloc(sizeOfElem > 0 ? sizeOfElem + 1 : ARRAY_LIST_DEFAULT_PRINT_BUFFER_SIZE);
+    if (!tmp) return 4;
+
     for (size_t i = 0; i < list->length - 1 && list->length; i++) {
-        const size_t len = str(PointerAdd(list->elems, i * list->elemSize), s);
-        s[len] = '\0';
-        fprintf(f, "%s, ", s);
+        const size_t len = stringify(PointerAdd(list->elems, i * list->elemSize), tmp);
+        tmp[len] = '\0';
+        fprintf(out, "%s, ", tmp);
     }
+
     if (list->length) {
-        const size_t len = str(PointerAdd(list->elems, (list->length - 1) * list->elemSize), s);
-        s[len] = '\0';
-        fprintf(f, "%s", s);
+        const size_t len = stringify(PointerAdd(list->elems, (list->length - 1) * list->elemSize), tmp);
+        tmp[len] = '\0';
+        fprintf(out, "%s", tmp);
     }
-    fprintf(f, "]");
-    fflush(f);
+    free(tmp);
+
+    fprintf(out, "]");
+    fflush(out);
     return 0;
 }
