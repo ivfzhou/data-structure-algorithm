@@ -17,32 +17,171 @@
 
 #include "array_list.h"
 
-#define TEST_LENGTH 500000
-
 static int intCompare(const void* o1, const void* o2) {
-    int* n1 = (int*)o1;
-    int* n2 = (int*)o2;
-    if (*n1 == *n2) return 0;
-    return o1 > o2 ? 1 : -1;
+    const int n1 = *(int*)o1;
+    const int n2 = *(int*)o2;
+    return n1 == n2 ? 0 : n1 > n2 ? 1 : -1;
 }
 
 static void intVisitor(void* p) {
-    static int prev = 1;
-    int i = *(int*)p;
+    static int prev = 0;
+    const int i = *(int*)p;
     assert(i == prev);
     prev = i + 1;
 }
 
-/*static size_t intToString(void *elem, char *s) {
-    int x = *(int *) elem;
-    char buf[12];
-    int len = snprintf(buf, 12, "%d", x);
-    strncpy(s, buf, len);
-    return len;
-}*/
+static size_t intToString(void* elem, char* s, size_t size) {
+    const int x = *(int*)elem;
+    return sprintf(s, "%d", x);
+}
+
+static void testAllocAndFree(void) {
+    ArrayList* list = ArrayList_Alloc(sizeof(int));
+    assert(list != NULL);
+    ArrayList_Free(list);
+
+    list = ArrayList_Alloc(0);
+    assert(list == NULL);
+    ArrayList_Free(list);
+}
+
+static void testLen(void) {
+    ArrayList* list = ArrayList_Alloc(sizeof(int));
+    assert(ArrayList_Len(list) == 0);
+
+    srand((unsigned)time(NULL) + 100);
+    int count = rand() % 1000;
+    for (int i = 0; i < count; i++) {
+        ArrayList_RPush(list, &i);
+    }
+    assert(ArrayList_Len(list) == (size_t)count);
+
+    ArrayList_Free(list);
+}
+
+static void testGet(void) {
+    ArrayList* list = ArrayList_Alloc(sizeof(int));
+
+    int x;
+    int ret = ArrayList_Get(list, 0, &x);
+    assert(ret == INDEX_OUT_OF_BOUND);
+
+    srand((unsigned)time(NULL) + 100);
+    int count = rand() % 1000;
+    for (int i = 0; i < count; i++) {
+        ArrayList_RPush(list, &i);
+    }
+    for (int i = 0; i < count; i++) {
+        int y;
+        ret = ArrayList_Get(list, i, &y);
+        assert(ret == 0);
+        assert(y == i);
+    }
+
+    ArrayList_Free(list);
+}
+
+static void testInsert(void) {
+    ArrayList* list = ArrayList_Alloc(sizeof(int));
+
+    srand((unsigned)time(NULL) + 100);
+    int count = rand() % 1000;
+    for (int i = 0; i < count; i++) {
+        size_t index = rand() % (ArrayList_Len(list) + 1);
+        int ret = ArrayList_Insert(list, index, &i);
+        assert(ret == 0);
+    }
+
+    ArrayList_Free(list);
+}
+
+static void testDel(void) {
+    ArrayList* list = ArrayList_Alloc(sizeof(int));
+
+    int ret = ArrayList_Del(list, 0);
+    assert(ret == INDEX_OUT_OF_BOUND);
+
+    srand((unsigned)time(NULL) + 100);
+    int count = rand() % 1000;
+    for (int i = 0; i < count; i++) {
+        ArrayList_RPush(list, &i);
+    }
+    for (int i = 0; i < count; i++) {
+        size_t index = rand() % (ArrayList_Len(list) + 1);
+        ArrayList_Del(list, index);
+    }
+
+    ArrayList_Free(list);
+}
+
+static void testLocate(void) {
+    ArrayList* list = ArrayList_Alloc(sizeof(int));
+    srand((unsigned)time(NULL) + 100);
+    int count = rand() % 1000;
+    for (int i = 0; i < count; i++) {
+        ArrayList_RPush(list, &i);
+    }
+
+    int hit = rand() % count;
+    size_t index;
+    int ret = ArrayList_Locate(list, intCompare, &hit, &index);
+    assert(ret == 0);
+    assert(index == (size_t)hit);
+
+    ArrayList_Free(list);
+}
+
+static void testTravel(void) {
+    ArrayList* list = ArrayList_Alloc(sizeof(int));
+    srand((unsigned)time(NULL) + 100);
+    int count = rand() % 1000;
+    for (int i = 0; i < count; i++) {
+        ArrayList_RPush(list, &i);
+    }
+    int ret = ArrayList_Travel(list, intVisitor);
+    assert(ret == 0);
+    ArrayList_Free(list);
+}
+
+static void testClear(void) {
+    ArrayList* list = ArrayList_Alloc(sizeof(int));
+    srand((unsigned)time(NULL) + 100);
+    int count = rand() % 1000;
+    for (int i = 0; i < count; i++) {
+        ArrayList_RPush(list, &i);
+    }
+    int ret = ArrayList_Clear(list);
+    assert(ret == 0);
+    ArrayList_Free(list);
+}
+
+static void testRPop(void) {
+    ArrayList* list = ArrayList_Alloc(sizeof(int));
+    srand((unsigned)time(NULL) + 100);
+    int count = rand() % 1000;
+    for (int i = 0; i < count; i++) {
+        ArrayList_RPush(list, &i);
+    }
+    for (int i = count - 1; i > 0; i--) {
+        int y;
+        int ret = ArrayList_RPop(list, &y);
+        assert(ret == 0);
+        assert(y == i);
+    }
+    ArrayList_Free(list);
+}
 
 int main(void) {
-    ArrayList* list = ArrayList_Alloc(sizeof(int));
+    testAllocAndFree();
+    testLen();
+    testGet();
+    testInsert();
+    testDel();
+    testLocate();
+    testTravel();
+    testClear();
+    testRPop();
+    /*ArrayList* list = ArrayList_Alloc(sizeof(int));
     assert(list);
 
     int elem = 2;
@@ -117,5 +256,5 @@ int main(void) {
 
     assert(!ArrayList_Clear(list));
 
-    ArrayList_Free(list);
+    ArrayList_Free(list);*/
 }

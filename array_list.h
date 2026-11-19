@@ -29,7 +29,7 @@
      *          否则扩容长度为原长度加一。
      *          若要修改此值，在 include array_list.h 前定义该宏。
      */
-    #define ARRAY_LIST_EXPAND_THRESHOLD 256L
+    #define ARRAY_LIST_EXPAND_THRESHOLD 256UL
 #endif
 
 #ifndef ARRAY_LIST_EXPAND_FACTOR_NUM
@@ -38,7 +38,7 @@
      * @details 扩容系数 ARRAY_LIST_EXPAND_FACTOR = ARRAY_LIST_EXPAND_FACTOR_NUM / ARRAY_LIST_EXPAND_FACTOR_DEN。
      *          若要修改此值，在 include array_list.h 前定义该宏。
      */
-    #define ARRAY_LIST_EXPAND_FACTOR_NUM 5L
+    #define ARRAY_LIST_EXPAND_FACTOR_NUM 5UL
 #endif
 #ifndef ARRAY_LIST_EXPAND_FACTOR_DEN
     /**
@@ -46,7 +46,7 @@
      * @details 扩容系数 ARRAY_LIST_EXPAND_FACTOR = ARRAY_LIST_EXPAND_FACTOR_NUM / ARRAY_LIST_EXPAND_FACTOR_DEN。
      *          若要修改此值，在 include array_list.h 前定义该宏。
      */
-    #define ARRAY_LIST_EXPAND_FACTOR_DEN 4L
+    #define ARRAY_LIST_EXPAND_FACTOR_DEN 4UL
 #endif
 
 #ifndef ARRAY_LIST_REDUCE_FACTOR
@@ -56,7 +56,7 @@
      *          且线性表长度与 ARRAY_LIST_REDUCE_FACTOR 乘积不大于线性表容量，就进行缩容操作。
      *          若要修改此值，在 include array_list.h 前定义该宏。
      */
-    #define ARRAY_LIST_REDUCE_FACTOR 2L
+    #define ARRAY_LIST_REDUCE_FACTOR 2UL
 #endif
 
 #ifndef ARRAY_LIST_DEFAULT_PRINT_BUFFER_SIZE
@@ -65,7 +65,7 @@
      * @details 可根据元素字符串化后的长度修改此值。
      *          若要修改此值，在 include array_list.h 前定义该宏。
      */
-    #define ARRAY_LIST_DEFAULT_PRINT_BUFFER_SIZE 256L
+    #define ARRAY_LIST_DEFAULT_PRINT_BUFFER_SIZE 256UL
 #endif
 
 #define array_list_expand_factor ((long double)ARRAY_LIST_EXPAND_FACTOR_NUM / (long double)ARRAY_LIST_EXPAND_FACTOR_DEN)
@@ -79,6 +79,23 @@ typedef struct {
     size_t elemSize; ///< 单个元素的字节大小。由内部 API 使用，请勿直接使用。
     void* elems; ///< 第一个元素的指针。由内部 API 使用，请勿直接使用。
 } ArrayList;
+
+/**
+ * @brief 顺序线性表函数的错误码。
+ */
+enum ArrayList_ErrorCode {
+    ELEM_NOT_FOUND = -1,
+    LIST_IS_NULL = 1,
+    INDEX_OUT_OF_BOUND,
+    ELEM_IS_NULL,
+    MEMORY_OVERLAPPING_BETWEEN_ELEM_AND_LIST,
+    MEMORY_ALLOCATE_FAILED,
+    COMPARER_IS_NULL,
+    INDEX_IS_NULL,
+    VISITOR_IS_NULL,
+    STREAM_IS_NULL,
+    STRINGIFY_IS_NULL,
+};
 
 /**
  * @brief 新建顺序表。
@@ -112,10 +129,10 @@ size_t ArrayList_Len(const ArrayList* list);
  * @param[out] elem 填充元素到指针下。
  * @return 操作结果，非零表示失败。
  * @retval 0 操作成功。
- * @retval 1 顺序线性表类型指针 list 为 NULL。
- * @retval 2 元素 elem 为 NULL。
- * @retval 3 index 越界。
- * @retval 4 elem 地址与 list 元素地址存在重叠。
+ * @retval LIST_IS_NULL 顺序线性表类型指针 list 为 NULL。
+ * @retval ELEM_IS_NULL 元素 elem 为 NULL。
+ * @retval INDEX_OUT_OF_BOUND index 越界。
+ * @retval MEMORY_OVERLAPPING_BETWEEN_ELEM_AND_LIST elem 地址与 list 元素地址存在重叠。
  */
 int ArrayList_Get(const ArrayList* list, size_t index, void* elem);
 
@@ -127,9 +144,11 @@ int ArrayList_Get(const ArrayList* list, size_t index, void* elem);
  * @param[in] index 元素插入位置。从 0 开始计数，最大值可以是线性表长度，否则报错越界。
  * @param[in] elem 将被插入到线性表中的元素指针。
  * @retval 0 操作成功。
- * @retval 1 list 为 NULL。
- * @retval 2 index 越界。
- * @retval 3 elem 为 NULL。
+ * @retval LIST_IS_NULL list 为 NULL。
+ * @retval INDEX_OUT_OF_BOUND index 越界。
+ * @retval ELEM_IS_NULL elem 为 NULL。
+ * @retval MEMORY_ALLOCATE_FAILED 内存分配错误。
+ * @retval MEMORY_OVERLAPPING_BETWEEN_ELEM_AND_LIST elem 与 list 存在内存重叠。
  */
 int ArrayList_Insert(ArrayList* list, size_t index, const void* elem);
 
@@ -139,8 +158,9 @@ int ArrayList_Insert(ArrayList* list, size_t index, const void* elem);
  * @param[in] list 顺序线性表类型指针。
  * @param[in] index 被删除元素下标。从 0 开始计数，最大值可以是线性表长度，否则报错越界。
  * @retval 0 操作成功。
- * @retval 1 list 为 NULL。
- * @retval 2 index 越界。
+ * @retval LIST_IS_NULL list 为 NULL。
+ * @retval INDEX_OUT_OF_BOUND index 越界。
+ * @retval MEMORY_ALLOCATE_FAILED 内存分配错误。
  */
 int ArrayList_Del(ArrayList* list, size_t index);
 
@@ -152,11 +172,12 @@ int ArrayList_Del(ArrayList* list, size_t index);
  * @param[in] elem 要寻找的元素的指针。
  * @param[out] index 元素 elem 在线性表中的位置。下标从 0 开始计算。
  * @return 操作结果，0 表示操作成功。
- * @retval 1 list 是 NULL。
- * @retval 2 cmp 是 NULL。
- * @retval 3 elem 是 NULL。
- * @retval 4 index 是 NULL。
- * @retval -1 线性表中不存在 elem 元素。
+ * @retval LIST_IS_NULL list 是 NULL。
+ * @retval COMPARER_IS_NULL cmp 是 NULL。
+ * @retval ELEM_IS_NULL elem 是 NULL。
+ * @retval INDEX_IS_NULL index 是 NULL。
+ * @retval ELEM_NOT_FOUND 线性表中不存在 elem 元素。
+ * @retval MEMORY_OVERLAPPING_BETWEEN_ELEM_AND_LIST elem 与 list 存在内存重叠。
  */
 int ArrayList_Locate(const ArrayList* list, ListElemComparer cmp, const void* elem, size_t* index);
 
@@ -166,8 +187,8 @@ int ArrayList_Locate(const ArrayList* list, ListElemComparer cmp, const void* el
  * @param[in] list 顺序线性表类型指针。
  * @param[in] visitor 遍历元素的函数。
  * @return 操作结果，0 表示正常遍历完所有元素。
- * @retval 1 list 是 NULL。
- * @retval 2 visitor 是 NULL。
+ * @retval LIST_IS_NULL list 是 NULL。
+ * @retval VISITOR_IS_NULL visitor 是 NULL。
  */
 int ArrayList_Travel(const ArrayList* list, ListElemVisitor visitor);
 
@@ -176,7 +197,7 @@ int ArrayList_Travel(const ArrayList* list, ListElemVisitor visitor);
  * @details 时间复杂度：O(1)。空间复杂度：O(1)。
  * @param[in] list 顺序线性表类型指针。
  * @return 操作结果，0 表示操作成功。
- * @retval 1 list 是 NULL。
+ * @retval LIST_IS_NULL list 是 NULL。
  */
 int ArrayList_Clear(ArrayList* list);
 
@@ -186,8 +207,10 @@ int ArrayList_Clear(ArrayList* list);
  * @param[in] list 顺序线性表类型指针。
  * @param[out] elem 元素值将填充进 elem。
  * @return 操作结果，0 表示操作成功。
- * @retval 1 list 是 NULL。
- * @retval 2 elem 是 NULL。
+ * @retval LIST_IS_NULL list 是 NULL。
+ * @retval ELEM_IS_NULL elem 是 NULL。
+ * @retval MEMORY_ALLOCATE_FAILED 内存分配错误。
+ * @retval MEMORY_OVERLAPPING_BETWEEN_ELEM_AND_LIST elem 与 list 存在内存重叠。
  */
 int ArrayList_RPop(ArrayList* list, void* elem);
 
@@ -197,8 +220,10 @@ int ArrayList_RPop(ArrayList* list, void* elem);
  * @param[in] list 顺序线性表类型指针。
  * @param[in] elem 添加进线性表的元素的指针。
  * @return 操作结果，0 表示操作成功。
- * @retval 1 list 为 NULL。
- * @retval 3 elem 为 NULL。
+ * @retval LIST_IS_NULL list 为 NULL。
+ * @retval ELEM_IS_NULL elem 为 NULL。
+ * @retval MEMORY_OVERLAPPING_BETWEEN_ELEM_AND_LIST elem 与 list 存在内存重叠。
+ * @retval MEMORY_ALLOCATE_FAILED 内存分配错误。
  */
 int ArrayList_LPush(ArrayList* list, const void* elem);
 
@@ -208,8 +233,10 @@ int ArrayList_LPush(ArrayList* list, const void* elem);
  * @param[in] list 顺序线性表类型指针。
  * @param[in] elem 添加进入线性表的元素的指针。
  * @return 操作结果，0 表示操作成功。
- * @retval 1 list 为 NULL。
- * @retval 3 elem 为 NULL。
+ * @retval LIST_IS_NULL list 为 NULL。
+ * @retval ELEM_IS_NULL elem 为 NULL。
+ * @retval MEMORY_ALLOCATE_FAILED 内存分配错误。
+ * @retval MEMORY_OVERLAPPING_BETWEEN_ELEM_AND_LIST elem 与 list 存在内存重叠。
  */
 int ArrayList_RPush(ArrayList* list, const void* elem);
 
@@ -219,8 +246,10 @@ int ArrayList_RPush(ArrayList* list, const void* elem);
  * @param[in] list 顺序线性表类型指针。
  * @param[in] elem 插入线性表中的元素的指针。
  * @return 操作结果，0 表示弹出元素成功。
- * @retval 1 list 为 NULL。
- * @retval 3 elem 为 NULL。
+ * @retval LIST_IS_NULL list 为 NULL。
+ * @retval ELEM_IS_NULL elem 为 NULL。
+ * @retval MEMORY_ALLOCATE_FAILED 内存分配错误。
+ * @retval MEMORY_OVERLAPPING_BETWEEN_ELEM_AND_LIST elem 与 list 在内存中存在重叠。
  */
 int ArrayList_LPop(ArrayList* list, void* elem);
 
@@ -231,9 +260,10 @@ int ArrayList_LPop(ArrayList* list, void* elem);
  * @param[in] index 被设置元素的下标。
  * @param[in] elem 添加进线性表的元素的指针。
  * @return 操作结果，0 表示操作成功。
- * @retval 1 list 为 NULL。
- * @retval 2 index 越界。
- * @retval 3 elem 为 NULL。
+ * @retval LIST_IS_NULL list 为 NULL。
+ * @retval INDEX_OUT_OF_BOUND index 越界。
+ * @retval ELEM_IS_NULL elem 为 NULL。
+ * @retval MEMORY_OVERLAPPING_BETWEEN_ELEM_AND_LIST elem 与 list 在内存中存在重叠。
  */
 int ArrayList_Set(ArrayList* list, size_t index, const void* elem);
 
@@ -244,9 +274,11 @@ int ArrayList_Set(ArrayList* list, size_t index, const void* elem);
  * @param[in] index 获取的元素下标。
  * @param[out] elem 线性表元素添加进 elem 中。
  * @return 操作结果，0 表示成功。
- * @retval 1 list 为 NULL。
- * @retval 2 index 越界。
- * @retval elem 为 NULL。
+ * @retval LIST_IS_NULL list 为 NULL。
+ * @retval INDEX_OUT_OF_BOUND index 越界。
+ * @retval ELEM_IS_NULL elem 为 NULL。
+ * @retval MEMORY_ALLOCATE_FAILED 内存分配错误。
+ * @retval MEMORY_OVERLAPPING_BETWEEN_ELEM_AND_LIST elem 与 list 在内存中存在重叠。
  */
 int ArrayList_GetDel(ArrayList* list, size_t index, void* elem);
 
@@ -257,9 +289,11 @@ int ArrayList_GetDel(ArrayList* list, size_t index, void* elem);
  * @param[in] index 获取和设置元素的下标。
  * @param[in] elem 与线性表交换元素值的指针。
  * @return 操作结果，0 表示成功。
- * @retval 1 list 为 NULL。
- * @retval 2 index 越界。
- * @retval 3 elem 为 NULL。
+ * @retval LIST_IS_NULL list 为 NULL。
+ * @retval INDEX_OUT_OF_BOUND index 越界。
+ * @retval ELEM_IS_NULL elem 为 NULL。
+ * @retval MEMORY_ALLOCATE_FAILED 内存分配错误。
+ * @retval MEMORY_OVERLAPPING_BETWEEN_ELEM_AND_LIST elem 与 list 在内存中存在重叠。
  */
 int ArrayList_GetSet(ArrayList* list, size_t index, void* elem);
 
@@ -271,11 +305,11 @@ int ArrayList_GetSet(ArrayList* list, size_t index, void* elem);
  * @param[in] stringify 将元素变换成字符串的函数。
  * @param[in] sizeOfElem 每个元素的字符串表示形式所占用的最大字节大小。
  * @return 操作结果，0 表示成功。
- * @retval 1 list 为 NULL。
- * @retval 2 out 为 NULL。
- * @retval 3 stringify 为 NULL。
- * @retval 4 其他错误。
+ * @retval LIST_IS_NULL list 为 NULL。
+ * @retval STREAM_IS_NULL out 为 NULL。
+ * @retval STRINGIFY_IS_NULL stringify 为 NULL。
+ * @retval MEMORY_ALLOCATE_FAILED 内存分配错误。
  */
-int ArrayList_FPrint(const ArrayList* list, FILE* out, ListElemToString stringify, size_t sizeOfElem);
+int ArrayList_FPrint(const ArrayList* list, FILE* out, ListElemToString2 stringify, size_t sizeOfElem);
 
 #endif

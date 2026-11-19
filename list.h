@@ -55,6 +55,16 @@ typedef void ListElemVisitor(void* elem);
  */
 typedef size_t ListElemToString(const void* elem, char* s);
 
+/**
+ * @brief 将元素转化成字符串形式写入到 str。
+ * @details 实现方应最多向 str 中写入 size 个字符。
+ * @param[in] elem 元素指针。
+ * @param[out] str 字符串。
+ * @param[in] size str 的长度。
+ * @return 写入 str 的字符数。
+ */
+typedef size_t ListElemToString2(const void* elem, char* str, size_t size);
+
 // 初始化线性表。
 // list：指针地址将被设置为初始化的线性表。
 // elem_size：线性表中每个元素占用的空间字节数。
