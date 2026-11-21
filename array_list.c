@@ -26,18 +26,19 @@ static _Bool needExpand(const ArrayList* list) { return list->length >= list->ca
 // 扩容并插入元素。
 static int expandAndInsert(ArrayList* list, const size_t index, const void* elem) {
     // 计算出线性表容量。
+    size_t newCapacity;
     if (list->capacity < ARRAY_LIST_EXPAND_THRESHOLD) {
-        list->capacity++;
+        newCapacity = list->capacity + 1;
     } else {
-        const size_t newCapacity = (size_t)((long double)list->capacity * array_list_expand_factor);
-        if (list->capacity > newCapacity)
-            list->capacity++;
+        const size_t calculatedCapacity = (size_t)((long double)list->capacity * array_list_expand_factor);
+        if (list->capacity > calculatedCapacity)
+            newCapacity = list->capacity + 1;
         else
-            list->capacity = newCapacity;
+            newCapacity = calculatedCapacity;
     }
 
     // 分配新的内存。
-    void* newElems = malloc(list->elemSize * list->capacity);
+    void* newElems = malloc(list->elemSize * newCapacity);
     if (!newElems) return MEMORY_ALLOCATE_FAILED;
 
     // 复制表前段元素。
@@ -56,19 +57,21 @@ static int expandAndInsert(ArrayList* list, const size_t index, const void* elem
     free(list->elems);
     list->elems = newElems;
     list->length++;
+    list->capacity = newCapacity;
 
     return 0;
 }
 
 // 缩容并弹出元素。
 static int deallocAndPop(ArrayList* list, const size_t index, void* elem) {
-    if (elem != NULL) memcpy(elem, PointerAdd(list->elems, index * list->elemSize), list->elemSize);
-
     // 分配新内存。
     size_t newCapacity = (size_t)((long double)list->length * array_list_expand_factor);
     if (newCapacity < list->length - 1) newCapacity = list->length - 1;
     void* newElems = malloc(list->elemSize * newCapacity);
     if (!newElems) return MEMORY_ALLOCATE_FAILED;
+
+    // 复制元素。
+    if (elem != NULL) memcpy(elem, PointerAdd(list->elems, index * list->elemSize), list->elemSize);
 
     // 复制前段。
     if (index) memcpy(newElems, list->elems, list->elemSize * index);
@@ -90,9 +93,10 @@ static int deallocAndPop(ArrayList* list, const size_t index, void* elem) {
 // 检查 elem 与 list 是否存在内存重叠。
 static _Bool checkMemoryOverlap(const ArrayList* list, const void* elem) {
     const uintptr_t elemPtr = (uintptr_t)elem;
+    const uintptr_t elemEndPtr = (uintptr_t)elem + (uintptr_t)list->elemSize;
     const uintptr_t startPtr = (uintptr_t)list->elems;
     const uintptr_t endPtr = startPtr + list->capacity * list->elemSize;
-    return elemPtr >= startPtr && elemPtr < endPtr;
+    return elemPtr < endPtr && elemEndPtr > startPtr;
 }
 
 ArrayList* ArrayList_Alloc(const size_t elemSize) {
@@ -257,9 +261,9 @@ int ArrayList_FPrint(const ArrayList* list, FILE* out, ListElemToString2 stringi
     if (!stringify) return STRINGIFY_IS_NULL;
 
     fprintf(out, "[");
-    size_t tmpLen = sizeOfElem > 1
+    size_t tmpLen = sizeOfElem > 0
         ? sizeOfElem + 1
-        : (ARRAY_LIST_DEFAULT_PRINT_BUFFER_SIZE > 1 ? ARRAY_LIST_DEFAULT_PRINT_BUFFER_SIZE + 1 : 256);
+        : (ARRAY_LIST_DEFAULT_PRINT_BUFFER_SIZE > 0 ? ARRAY_LIST_DEFAULT_PRINT_BUFFER_SIZE + 1 : 256);
     char* tmp = malloc(tmpLen);
     if (!tmp) return MEMORY_ALLOCATE_FAILED;
 

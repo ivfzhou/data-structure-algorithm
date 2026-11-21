@@ -138,7 +138,7 @@ int ArrayList_Get(const ArrayList* list, size_t index, void* elem);
 
 /**
  * @brief 向顺序表中插入元素。
- * @details 时间复杂度：O(1)，空间复杂度：O(1)。
+ * @details 时间复杂度：O(n)，空间复杂度：O(1)。
  *          不会删除覆盖元素，而是被插入位开始的元素向后挪一位。
  * @param[in] list 顺序线性表类型指针。
  * @param[in] index 元素插入位置。从 0 开始计数，最大值可以是线性表长度，否则报错越界。
@@ -154,7 +154,7 @@ int ArrayList_Insert(ArrayList* list, size_t index, const void* elem);
 
 /**
  * @brief 删除顺序表中一个元素。
- * @details 时间复杂度：O(1)，空间复杂度：O(1)。
+ * @details 时间复杂度：O(n)，空间复杂度：O(1)。
  * @param[in] list 顺序线性表类型指针。
  * @param[in] index 被删除元素下标。从 0 开始计数，最大值可以是线性表长度，否则报错越界。
  * @retval 0 操作成功。
@@ -177,7 +177,6 @@ int ArrayList_Del(ArrayList* list, size_t index);
  * @retval ELEM_IS_NULL elem 是 NULL。
  * @retval INDEX_IS_NULL index 是 NULL。
  * @retval ELEM_NOT_FOUND 线性表中不存在 elem 元素。
- * @retval MEMORY_OVERLAPPING_BETWEEN_ELEM_AND_LIST elem 与 list 存在内存重叠。
  */
 int ArrayList_Locate(const ArrayList* list, ListElemComparer cmp, const void* elem, size_t* index);
 
@@ -203,7 +202,7 @@ int ArrayList_Clear(ArrayList* list);
 
 /**
  * @brief 取出顺序表中的最右边的元素。
- * @details 时间复杂度：O(1)。空间复杂度：O(1)。
+ * @details 时间复杂度：均摊 O(1)，触发缩容时为 O(n)。空间复杂度：O(1)。
  * @param[in] list 顺序线性表类型指针。
  * @param[out] elem 元素值将填充进 elem。
  * @return 操作结果，0 表示操作成功。
@@ -216,7 +215,7 @@ int ArrayList_RPop(ArrayList* list, void* elem);
 
 /**
  * @brief 在顺序表中的最左边位置添加元素。
- * @details 时间复杂度：O(1)。空间复杂度：O(1)。
+ * @details 时间复杂度：O(n)。空间复杂度：O(1)。
  * @param[in] list 顺序线性表类型指针。
  * @param[in] elem 添加进线性表的元素的指针。
  * @return 操作结果，0 表示操作成功。
@@ -229,7 +228,7 @@ int ArrayList_LPush(ArrayList* list, const void* elem);
 
 /**
  * @brief 在顺序表中的最右边位置添加元素。
- * @details 时间复杂度：O(1)。空间复杂度：O(1)。
+ * @details 时间复杂度：均摊 O(1)，触发扩容时为 O(n)。空间复杂度：O(1)。
  * @param[in] list 顺序线性表类型指针。
  * @param[in] elem 添加进入线性表的元素的指针。
  * @return 操作结果，0 表示操作成功。
@@ -242,9 +241,9 @@ int ArrayList_RPush(ArrayList* list, const void* elem);
 
 /**
  * @brief 取出顺序表中的最左边的元素。
- * @details 时间复杂度：O(1)。空间复杂度：O(1)。
+ * @details 时间复杂度：O(n)。空间复杂度：O(1)。
  * @param[in] list 顺序线性表类型指针。
- * @param[in] elem 插入线性表中的元素的指针。
+ * @param[out] elem 从线性表中取出的元素复制给指针。
  * @return 操作结果，0 表示弹出元素成功。
  * @retval LIST_IS_NULL list 为 NULL。
  * @retval ELEM_IS_NULL elem 为 NULL。
@@ -269,7 +268,7 @@ int ArrayList_Set(ArrayList* list, size_t index, const void* elem);
 
 /**
  * @brief 删除并且取出顺序表中的元素。
- * @details 时间复杂度：O(1)。空间复杂度：O(1)。
+ * @details 时间复杂度：O(n)。空间复杂度：O(1)。
  * @param[in] list 顺序线性表类型指针。
  * @param[in] index 获取的元素下标。
  * @param[out] elem 线性表元素添加进 elem 中。
